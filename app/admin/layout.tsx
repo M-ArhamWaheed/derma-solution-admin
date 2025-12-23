@@ -29,7 +29,7 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden " style={{ width: '100%' }}>
       <AdminSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Navbar user={profile} />
