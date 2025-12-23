@@ -102,37 +102,42 @@ export function AddCategoryForm({ onCategoryAdded, initialValues, onCancel }: { 
 
   return (
     <div className={`rounded-lg border p-6 ${initialValues?.id ? 'border-primary bg-primary/5' : 'border-border bg-card'}`}>
-      <h3 className="text-lg font-semibold mb-4">
+      <h3 className="text-lg font-semibold mb-4 text-foreground">
         {initialValues?.id ? '✏️ Edit Category' : '➕ Add New Category'}
       </h3>
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <div>
-        <label className="block mb-1 font-medium">Name</label>
+        <label className="block mb-1 font-medium text-foreground">Name</label>
         <Input value={name} onChange={e => setName(e.target.value)} placeholder="Category name" required />
       </div>
       <div>
-        <label className="block mb-1 font-medium">Slug</label>
+        <label className="block mb-1 font-medium text-foreground">Slug</label>
         <Input value={slug} onChange={e => setSlug(e.target.value)} placeholder="category-slug" required />
       </div>
       <div>
-        <label className="block mb-1 font-medium">Description</label>
+        <label className="block mb-1 font-medium text-foreground">Description</label>
         <Input value={description} onChange={e => setDescription(e.target.value)} placeholder="Description (optional)" />
       </div>
       <div>
-        <label className="block mb-1 font-medium">Image</label>
-        <input type="file" accept="image/*" onChange={e => setImageFile(e.target.files?.[0] || null)} />
+        <label className="block mb-1 font-medium text-foreground">Image</label>
+        <input 
+          type="file" 
+          accept="image/*" 
+          onChange={e => setImageFile(e.target.files?.[0] || null)}
+          className="w-full text-sm text-foreground file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+        />
         {uploading && <span className="text-xs text-muted-foreground">Uploading...</span>}
         {imageUrl && !imageFile && (
           <div className="mt-2"><img src={imageUrl} alt="Current" className="h-10 w-10 object-cover rounded" /></div>
         )}
       </div>
       <div>
-        <label className="block mb-1 font-medium">Display Order</label>
+        <label className="block mb-1 font-medium text-foreground">Display Order</label>
         <Input type="number" value={displayOrder} onChange={e => setDisplayOrder(Number(e.target.value))} min={0} />
       </div>
       <div className="flex items-center gap-2 mt-6">
-        <input type="checkbox" checked={isActive} onChange={e => setIsActive(e.target.checked)} id="isActive" />
-        <label htmlFor="isActive" className="font-medium">Active</label>
+        <input type="checkbox" checked={isActive} onChange={e => setIsActive(e.target.checked)} id="isActive" className="h-4 w-4 rounded border-input" />
+        <label htmlFor="isActive" className="font-medium text-foreground">Active</label>
       </div>
       <div className="col-span-full flex gap-3">
         <Button type="submit" disabled={isPending || updating} size="lg" className="flex-1">

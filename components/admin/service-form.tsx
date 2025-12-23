@@ -105,21 +105,26 @@ export function ServiceForm({ onServiceSaved, initialValues, categories, onCance
 
   return (
     <div className={`rounded-lg border p-6 ${initialValues?.id ? 'border-primary bg-primary/5' : 'border-border bg-card'}`}>
-      <h3 className="text-lg font-semibold mb-4">
+      <h3 className="text-lg font-semibold mb-4 text-foreground">
         {initialValues?.id ? '✏️ Edit Service' : '➕ Add New Service'}
       </h3>
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <div>
-        <label className="block mb-1 font-medium">Name</label>
+        <label className="block mb-1 font-medium text-foreground">Name</label>
         <Input value={name} onChange={e => setName(e.target.value)} placeholder="Service name" required />
       </div>
       <div>
-        <label className="block mb-1 font-medium">Slug</label>
+        <label className="block mb-1 font-medium text-foreground">Slug</label>
         <Input value={slug} onChange={e => setSlug(e.target.value)} placeholder="service-slug" required />
       </div>
       <div>
-        <label className="block mb-1 font-medium">Category</label>
-        <select value={categoryId} onChange={e => setCategoryId(e.target.value)} className="w-full border rounded px-2 py-2">
+        <label className="block mb-1 font-medium text-foreground">Category</label>
+        <select 
+          value={categoryId} 
+          onChange={e => setCategoryId(e.target.value)} 
+          className="w-full border border-input bg-background text-foreground rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          required
+        >
           <option value="">Select category</option>
           {categories.map((cat) => (
             <option key={cat.id} value={cat.id}>{cat.name}</option>
@@ -127,32 +132,37 @@ export function ServiceForm({ onServiceSaved, initialValues, categories, onCance
         </select>
       </div>
       <div>
-        <label className="block mb-1 font-medium">Base Price</label>
+        <label className="block mb-1 font-medium text-foreground">Base Price</label>
         <Input type="number" value={basePrice} onChange={e => setBasePrice(e.target.value)} min={0} required />
       </div>
       <div>
-        <label className="block mb-1 font-medium">Duration (minutes)</label>
+        <label className="block mb-1 font-medium text-foreground">Duration (minutes)</label>
         <Input type="number" value={duration} onChange={e => setDuration(e.target.value)} min={0} />
       </div>
       <div>
-        <label className="block mb-1 font-medium">Description</label>
+        <label className="block mb-1 font-medium text-foreground">Description</label>
         <Input value={description} onChange={e => setDescription(e.target.value)} placeholder="Description (optional)" />
       </div>
       <div>
-        <label className="block mb-1 font-medium">Thumbnail</label>
-        <input type="file" accept="image/*" onChange={e => setImageFile(e.target.files?.[0] || null)} />
+        <label className="block mb-1 font-medium text-foreground">Thumbnail</label>
+        <input 
+          type="file" 
+          accept="image/*" 
+          onChange={e => setImageFile(e.target.files?.[0] || null)}
+          className="w-full text-sm text-foreground file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+        />
         {uploading && <span className="text-xs text-muted-foreground">Uploading...</span>}
         {thumbnail && !imageFile && (
           <div className="mt-2"><img src={thumbnail} alt="Current" className="h-10 w-10 object-cover rounded" /></div>
         )}
       </div>
       <div className="flex items-center gap-2 mt-6">
-        <input type="checkbox" checked={isPopular} onChange={e => setIsPopular(e.target.checked)} id="isPopular" />
-        <label htmlFor="isPopular" className="font-medium">Popular</label>
+        <input type="checkbox" checked={isPopular} onChange={e => setIsPopular(e.target.checked)} id="isPopular" className="h-4 w-4 rounded border-input" />
+        <label htmlFor="isPopular" className="font-medium text-foreground">Popular</label>
       </div>
       <div className="flex items-center gap-2 mt-6">
-        <input type="checkbox" checked={isActive} onChange={e => setIsActive(e.target.checked)} id="isActive" />
-        <label htmlFor="isActive" className="font-medium">Active</label>
+        <input type="checkbox" checked={isActive} onChange={e => setIsActive(e.target.checked)} id="isActive" className="h-4 w-4 rounded border-input" />
+        <label htmlFor="isActive" className="font-medium text-foreground">Active</label>
       </div>
       <div className="col-span-full flex gap-3">
         <Button type="submit" disabled={isPending || uploading} size="lg" className="flex-1">

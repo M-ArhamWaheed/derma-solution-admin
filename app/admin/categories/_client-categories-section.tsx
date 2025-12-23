@@ -45,29 +45,29 @@ export default function ClientCategoriesSection({ initialCategories }: { initial
           onCancel={handleCancelEdit}
         />
       </div>
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border rounded shadow">
-          <thead>
+      <div className="overflow-x-auto rounded-lg border border-border">
+        <table className="min-w-full bg-card">
+          <thead className="bg-muted/50">
             <tr>
-              <th className="px-4 py-2 border">Name</th>
-              <th className="px-4 py-2 border">Slug</th>
-              <th className="px-4 py-2 border">Description</th>
-              <th className="px-4 py-2 border">Image</th>
-              <th className="px-4 py-2 border">Display Order</th>
-              <th className="px-4 py-2 border">Active</th>
-              <th className="px-4 py-2 border">Manage</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-foreground border-b border-border">Name</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-foreground border-b border-border">Slug</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-foreground border-b border-border">Description</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-foreground border-b border-border">Image</th>
+              <th className="px-4 py-3 text-center text-sm font-semibold text-foreground border-b border-border">Display Order</th>
+              <th className="px-4 py-3 text-center text-sm font-semibold text-foreground border-b border-border">Active</th>
+              <th className="px-4 py-3 text-center text-sm font-semibold text-foreground border-b border-border">Manage</th>
             </tr>
           </thead>
           <tbody>
             {categories.map((cat) => (
-              <tr key={cat.id} className="border-b">
-                <td className="px-4 py-2 border font-semibold">{cat.name}</td>
-                <td className="px-4 py-2 border">{cat.slug}</td>
-                <td className="px-4 py-2 border">{cat.description}</td>
-                <td className="px-4 py-2 border">{cat.image_url ? <Image src={cat.image_url} alt={cat.name} width={40} height={40} className="object-cover rounded" /> : '-'}</td>
-                <td className="px-4 py-2 border text-center">{cat.display_order}</td>
-                <td className="px-4 py-2 border text-center">{cat.is_active ? 'Yes' : 'No'}</td>
-                <td className="px-4 py-2 border text-center">
+              <tr key={cat.id} className="border-b border-border hover:bg-muted/30 transition-colors">
+                <td className="px-4 py-3 font-semibold text-foreground">{cat.name}</td>
+                <td className="px-4 py-3 text-muted-foreground">{cat.slug}</td>
+                <td className="px-4 py-3 text-muted-foreground">{cat.description}</td>
+                <td className="px-4 py-3">{cat.image_url ? <Image src={cat.image_url} alt={cat.name} width={40} height={40} className="object-cover rounded" /> : <span className="text-muted-foreground">-</span>}</td>
+                <td className="px-4 py-3 text-center text-foreground">{cat.display_order}</td>
+                <td className="px-4 py-3 text-center text-foreground">{cat.is_active ? 'Yes' : 'No'}</td>
+                <td className="px-4 py-3 text-center">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded">Manage</button>
