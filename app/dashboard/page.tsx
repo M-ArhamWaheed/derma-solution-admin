@@ -3,7 +3,6 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { Navbar } from "@/components/layout/navbar"
 import { Footer } from "@/components/layout/footer"
-import { Button } from "@/components/ui/button"
 import { HeroSection } from "@/components/dashboard/hero-section"
 import { CategoryButtons } from "@/components/dashboard/category-buttons"
 import { PopularServices } from "@/components/dashboard/popular-services"
@@ -57,11 +56,6 @@ export default async function DashboardPage() {
     <div className="min-h-screen flex flex-col overflow-x-hidden">
       <Navbar
         user={profile}
-        action={
-          <Button size="lg" className="font-semibold hidden md:inline-flex">
-            Book An Appointment
-          </Button>
-        }
       />
 
       <main className="flex-1 w-full overflow-x-hidden">

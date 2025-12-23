@@ -1,3 +1,4 @@
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 
 export function PromoSection() {
@@ -44,10 +45,14 @@ export function PromoSection() {
           </div>
 
           {/* Image */}
-          <div className="relative h-[300px] sm:h-[400px] md:h-[500px] rounded-xl md:rounded-2xl overflow-hidden bg-muted">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <p className="text-muted-foreground text-sm md:text-base">Clinic Image</p>
-            </div>
+          <div className="relative h-[300px] sm:h-[400px] md:h-[500px] rounded-xl md:rounded-2xl overflow-hidden shadow-lg">
+            <Image
+              src="/logos/our-clinic.webp"
+              alt="Our Clinic"
+              fill
+              className="object-cover"
+              priority
+            />
           </div>
         </div>
       </div>
