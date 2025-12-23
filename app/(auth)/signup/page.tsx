@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function SignUpPage() {
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex" style={{ width: '100%' }}>
       {/* Left Side - Form */}
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md space-y-8">
@@ -17,7 +17,7 @@ export default function SignUpPage() {
             <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-2 mb-8">
               ← Back to dashboard
             </Link>
-            
+
             <h1 className="text-4xl font-bold font-heading">Sign Up</h1>
             <p className="text-muted-foreground">
               Enter your email and password to sign up!
