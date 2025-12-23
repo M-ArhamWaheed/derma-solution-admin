@@ -14,21 +14,23 @@ export function CategoryButtons({ categories }: CategoryButtonsProps) {
   }
 
   return (
-    <section className="container py-4">
-      <div className="flex flex-wrap gap-4 justify-center">
-        {categories.map((category) => (
-          <Button
-            key={category.id}
-            variant="outline"
-            size="lg"
-            className="font-semibold"
-            onClick={() => scrollToCategory(category.id)}
-          >
-            {category.name}
-          </Button>
-        ))}
+    <section className="w-full py-4 overflow-hidden">
+      <div className="container px-4">
+        {/* Wrapped buttons for all screen sizes */}
+        <div className="flex flex-wrap gap-2 md:gap-3 justify-center max-w-full">
+          {categories.map((category) => (
+            <Button
+              key={category.id}
+              variant="outline"
+              size="sm"
+              className="font-semibold text-xs md:text-sm whitespace-nowrap"
+              onClick={() => scrollToCategory(category.id)}
+            >
+              {category.name}
+            </Button>
+          ))}
+        </div>
       </div>
     </section>
   )
 }
-

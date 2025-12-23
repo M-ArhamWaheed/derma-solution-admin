@@ -10,12 +10,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { createClient } from "@/lib/supabase/client"
-import { LogOut, User, Settings } from "lucide-react"
+import { LogOut, User, Settings, Menu } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import type { Profile } from "@/types"
+import Image from "next/image"
+import Link from "next/link"
+import { useState } from "react"
 
 interface NavbarProps {
   user: Profile | null
@@ -23,9 +33,17 @@ interface NavbarProps {
   action?: React.ReactNode
 }
 
-export function Navbar({ user, title, action }: NavbarProps) {
+const navLinks = [
+  { href: "/dashboard", label: "Home" },
+  { href: "/treatments", label: "Services" },
+  { href: "/orders", label: "Orders" },
+  { href: "/about", label: "About Us" },
+]
+
+export function Navbar({ user, action }: NavbarProps) {
   const router = useRouter()
   const { toast } = useToast()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const handleSignOut = async () => {
     const supabase = createClient()
@@ -45,73 +63,132 @@ export function Navbar({ user, title, action }: NavbarProps) {
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between relative">
-        {/* Left Section - Action Button */}
-        <div className="flex items-center gap-4">
-          {action}
-        </div>
-
-        {/* Center Section - Navigation Links */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex gap-6">
-          <a href="/dashboard" className="text-base font-medium text-muted-foreground hover:text-primary transition-colors">Home</a>
-          <a href="/treatments" className="text-base font-medium text-muted-foreground hover:text-primary transition-colors">Services</a>
-          <a href="/orders" className="text-base font-medium text-muted-foreground hover:text-primary transition-colors">Orders</a>
-          <a href="/about" className="text-base font-medium text-muted-foreground hover:text-primary transition-colors">About Us</a>
-        </div>
-
-        {/* Right Section - User Menu */}
-        <div className="flex items-center gap-3">
-          <ThemeToggle />
-
-          {user && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="relative h-10 gap-2 px-2"
-                >
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={user.avatar_url} alt={user.first_name} />
-                    <AvatarFallback>
-                      {getInitials(user.first_name, user.last_name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="hidden md:inline-block font-medium">
-                    {user.first_name}
-                  </span>
+      <div className="container px-4">
+        <div className="flex h-16 items-center justify-between">
+          {/* Left Section - Logo & Mobile Menu */}
+          <div className="flex items-center gap-4">
+            {/* Mobile Menu */}
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild className="lg:hidden">
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-5 w-5" />
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">
-                      {user.first_name} {user.last_name}
-                    </p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      {user.email}
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Settings</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+              </SheetTrigger>
+              <SheetContent side="left" className="w-64">
+                <SheetHeader>
+                  <SheetTitle>
+                    <Image
+                      src="/logos/logo.webp"
+                      alt="Derma Solution"
+                      width={120}
+                      height={40}
+                      className="object-contain"
+                    />
+                  </SheetTitle>
+                </SheetHeader>
+                <nav className="flex flex-col gap-4 mt-8">
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="text-base font-medium text-muted-foreground hover:text-primary transition-colors py-2"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                  {action && (
+                    <div className="pt-4 border-t">
+                      {action}
+                    </div>
+                  )}
+                </nav>
+              </SheetContent>
+            </Sheet>
+
+            {/* Logo - Hidden on mobile when menu is available */}
+            <Link href="/dashboard" className="hidden md:block">
+              <Image
+                src="/logos/logo.webp"
+                alt="Derma Solution"
+                width={120}
+                height={40}
+                className="object-contain"
+              />
+            </Link>
+
+            {/* Desktop Action Button */}
+            <div className="hidden lg:block">
+              {action}
+            </div>
+          </div>
+
+          {/* Center Section - Desktop Navigation Links */}
+          <div className="hidden lg:flex items-center gap-6">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+
+          {/* Right Section - User Menu & Theme */}
+          <div className="flex items-center gap-2 md:gap-3">
+            <ThemeToggle />
+
+            {user && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="relative h-10 gap-2 px-2"
+                  >
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user.avatar_url} alt={user.first_name} />
+                      <AvatarFallback>
+                        {getInitials(user.first_name, user.last_name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="hidden md:inline-block font-medium text-sm">
+                      {user.first_name}
+                    </span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">
+                        {user.first_name} {user.last_name}
+                      </p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {user.email}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Settings</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
         </div>
       </div>
     </nav>
   )
 }
-

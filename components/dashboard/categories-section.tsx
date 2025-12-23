@@ -43,46 +43,46 @@ function ServiceCard({ service, index }: { service: any, index: number }) {
   ]
   
   return (
-    <div className="group relative bg-card rounded-xl border overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+    <div className="group relative bg-card rounded-lg md:rounded-xl border overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
       {/* Gradient Background */}
       <div className={`absolute inset-0 bg-gradient-to-br ${gradients[index % gradients.length]} opacity-50`} />
       
       {/* Content */}
-      <div className="relative p-6">
+      <div className="relative p-4 md:p-6">
         {/* Popular Badge */}
         {service.popular && (
-          <Badge className="absolute top-6 right-6 bg-primary/20 text-primary border-primary/30">
+          <Badge className="absolute top-4 right-4 md:top-6 md:right-6 bg-primary/20 text-primary border-primary/30 text-xs">
             <Sparkles className="w-3 h-3 mr-1" />
             Popular
           </Badge>
         )}
 
         {/* Service Info */}
-        <div className="mb-4">
-          <h4 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">
+        <div className="mb-3 md:mb-4">
+          <h4 className="text-lg md:text-xl font-bold mb-2 group-hover:text-primary transition-colors pr-20">
             {service.name}
           </h4>
-          <p className="text-sm text-muted-foreground line-clamp-2">
+          <p className="text-xs md:text-sm text-muted-foreground line-clamp-2">
             {service.description}
           </p>
         </div>
 
         {/* Duration */}
         {service.duration && (
-          <p className="text-xs text-muted-foreground mb-4">
+          <p className="text-xs text-muted-foreground mb-3 md:mb-4">
             Duration: {service.duration}
           </p>
         )}
 
         {/* Price & Button */}
-        <div className="flex items-center justify-between pt-4 border-t">
+        <div className="flex items-center justify-between pt-3 md:pt-4 border-t gap-3">
           <div>
             <p className="text-xs text-muted-foreground">From</p>
-            <p className="text-2xl font-bold text-primary">£{service.base_price}</p>
+            <p className="text-xl md:text-2xl font-bold text-primary">£{service.base_price}</p>
           </div>
-          <Button size="sm" className="group-hover:bg-primary transition-colors">
+          <Button size="sm" className="group-hover:bg-primary transition-colors shrink-0 text-xs md:text-sm">
             Book Now
-            <ArrowRight className="w-4 h-4 ml-2" />
+            <ArrowRight className="w-3 h-3 md:w-4 md:h-4 ml-1 md:ml-2" />
           </Button>
         </div>
       </div>
@@ -104,8 +104,8 @@ function CategoryIcon({ name }: { name: string }) {
   const gradient = colors[index % colors.length]
   
   return (
-    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center shadow-lg`}>
-      <Sparkles className="w-8 h-8 text-white" />
+    <div className={`w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center shadow-lg shrink-0`}>
+      <Sparkles className="w-6 h-6 md:w-8 md:h-8 text-white" />
     </div>
   )
 }
@@ -114,17 +114,17 @@ export async function CategoriesSection() {
   const categories = await getCategories()
   
   return (
-    <section className="py-20 bg-gradient-to-b from-background via-muted/20 to-background">
-      <div className="container space-y-20">
+    <section className="py-12 md:py-20 bg-gradient-to-b from-background via-muted/20 to-background">
+      <div className="container px-4 space-y-12 md:space-y-20">
         {/* Header */}
-        <div className="text-center space-y-4">
-          <p className="text-primary font-semibold mb-2 uppercase tracking-wider text-sm">
+        <div className="text-center space-y-3 md:space-y-4">
+          <p className="text-primary font-semibold mb-2 uppercase tracking-wider text-xs md:text-sm">
             Our Treatments
           </p>
-          <h2 className="text-4xl md:text-5xl font-bold font-heading">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-heading px-4">
             Treatments at <span className="text-primary">Derma Solution</span>
           </h2>
-          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-base md:text-lg text-muted-foreground max-w-3xl mx-auto px-4">
             Browse our comprehensive range of professional aesthetic treatments, 
             designed to enhance your natural beauty and boost your confidence.
           </p>
@@ -136,23 +136,23 @@ export async function CategoriesSection() {
             <p className="text-muted-foreground">No categories available yet.</p>
           </div>
         ) : (
-          <div className="space-y-16">
+          <div className="space-y-12 md:space-y-16">
             {categories.map((category, catIndex) => (
               <div key={category.id} className="scroll-mt-20">
                 {/* Category Header */}
-                <div className="flex items-center gap-6 mb-8">
+                <div className="flex items-center gap-4 md:gap-6 mb-6 md:mb-8">
                   <CategoryIcon name={category.name} />
-                  <div className="flex-1">
-                    <h3 className="text-3xl md:text-4xl font-bold font-heading mb-2">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold font-heading mb-1 md:mb-2 truncate">
                       {category.name}
                     </h3>
                     {category.description && (
-                      <p className="text-muted-foreground">
+                      <p className="text-sm md:text-base text-muted-foreground line-clamp-2">
                         {category.description}
                       </p>
                     )}
                   </div>
-                  <Button variant="ghost" className="hidden md:flex items-center gap-2">
+                  <Button variant="ghost" size="sm" className="hidden md:flex items-center gap-2 shrink-0">
                     View all
                     <ArrowRight className="w-4 h-4" />
                   </Button>
@@ -160,7 +160,7 @@ export async function CategoriesSection() {
 
                 {/* Category Image (if available) */}
                 {category.image_url && (
-                  <div className="mb-8 rounded-2xl overflow-hidden h-64 relative">
+                  <div className="mb-6 md:mb-8 rounded-xl md:rounded-2xl overflow-hidden h-48 md:h-64 relative">
                     <Image
                       src={category.image_url}
                       alt={category.name}
@@ -172,15 +172,15 @@ export async function CategoriesSection() {
                 )}
 
                 {/* Services Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                   {categoryServices.default.map((service, index) => (
                     <ServiceCard key={service.id} service={service} index={catIndex * 3 + index} />
                   ))}
                 </div>
 
                 {/* View All Button (Mobile) */}
-                <div className="mt-6 md:hidden text-center">
-                  <Button variant="outline" className="w-full">
+                <div className="mt-4 md:hidden text-center">
+                  <Button variant="outline" size="sm" className="w-full">
                     View all {category.name}
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
@@ -191,14 +191,14 @@ export async function CategoriesSection() {
         )}
 
         {/* Bottom CTA */}
-        <div className="text-center pt-8 border-t">
-          <h3 className="text-2xl font-bold mb-4">
+        <div className="text-center pt-8 border-t px-4">
+          <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">
             Can't find what you're looking for?
           </h3>
-          <p className="text-muted-foreground mb-6">
+          <p className="text-sm md:text-base text-muted-foreground mb-4 md:mb-6">
             Contact us for a personalized consultation
           </p>
-          <Button size="lg" className="font-semibold">
+          <Button size="lg" className="font-semibold w-full sm:w-auto">
             Book Free Consultation
           </Button>
         </div>

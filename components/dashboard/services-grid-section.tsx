@@ -67,24 +67,24 @@ const services = [
 
 export function ServicesGridSection() {
   return (
-    <section className="py-20 bg-background">
-      <div className="container">
+    <section className="py-12 md:py-20 bg-background">
+      <div className="container px-4">
         {/* Header */}
-        <div className="text-center mb-16">
-          <p className="text-primary font-semibold mb-2 uppercase tracking-wider text-sm">
+        <div className="text-center mb-12 md:mb-16">
+          <p className="text-primary font-semibold mb-2 uppercase tracking-wider text-xs md:text-sm">
             Our Services
           </p>
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 px-4">
             Transform Your Beauty Journey
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto px-4">
             Discover our comprehensive range of aesthetic treatments designed to help you 
             look and feel your absolute best.
           </p>
         </div>
 
         {/* Services Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {services.map((service) => (
             <div
               key={service.id}
@@ -146,8 +146,8 @@ export function ServicesGridSection() {
         </div>
 
         {/* View All Button */}
-        <div className="text-center mt-12">
-          <Button size="lg" variant="outline" className="font-semibold">
+        <div className="text-center mt-8 md:mt-12 px-4">
+          <Button size="lg" variant="outline" className="font-semibold w-full sm:w-auto">
             View All Services
           </Button>
         </div>

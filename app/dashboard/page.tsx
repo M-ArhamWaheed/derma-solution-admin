@@ -55,17 +55,17 @@ export default async function DashboardPage() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col overflow-x-hidden">
       <Navbar
         user={profile}
         action={
-          <Button size="lg" className="font-semibold">
+          <Button size="lg" className="font-semibold hidden md:inline-flex">
             Book An Appointment
           </Button>
         }
       />
 
-      <main className="flex-1">
+      <main className="flex-1 w-full overflow-x-hidden">
         <HeroSection />
 
         {/* Category Buttons directly under hero text */}

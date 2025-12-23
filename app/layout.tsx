@@ -35,9 +35,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${poppins.variable} ${inter.variable} font-sans antialiased`}
+        className={`${poppins.variable} ${inter.variable} font-sans antialiased overflow-x-hidden`}
       >
-        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="min-h-screen w-full overflow-x-hidden">
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
