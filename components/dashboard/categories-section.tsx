@@ -1,19 +1,4 @@
-import React from "react"
-
-const dummyCategories = [
-  { id: "1", name: "Acne & Scars (Acne Peeling)" },
-  { id: "2", name: "Pigmentation" },
-  { id: "3", name: "Volume & Sculpturering" },
-  { id: "4", name: "Skin Boost" },
-  { id: "5", name: "Facial Treatments" },
-  { id: "6", name: "Wrinkle Treatments" },
-  { id: "7", name: "Face & Body Sculpting" },
-  { id: "8", name: "Health & Well being" },
-  { id: "9", name: "Lasers" },
-  { id: "10", name: "Mesoestetics" },
-  { id: "11", name: "Eyes & Brows" },
-  { id: "12", name: "Vascular Bursts & Redness" },
-]
+import { getCategories } from "@/lib/supabase/queries"
 
 const dummyServices = [
   {
@@ -56,7 +41,8 @@ function ServiceCard({ service }: { service: typeof dummyServices[0] }) {
   )
 }
 
-export function CategoriesSection() {
+export async function CategoriesSection() {
+  const categories = await getCategories()
   return (
     <section className="py-16">
       <div className="container space-y-16">
@@ -68,7 +54,7 @@ export function CategoriesSection() {
             Browse our comprehensive range of professional aesthetic treatments
           </p>
         </div>
-        {dummyCategories.map((category) => (
+        {categories.map((category) => (
           <div key={category.id} className="space-y-4 scroll-mt-20">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-2xl md:text-3xl font-bold font-heading">
@@ -76,11 +62,7 @@ export function CategoriesSection() {
               </h3>
               <a href="#" className="text-primary font-semibold text-sm hover:underline">View all</a>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {dummyServices.map((service) => (
-                <ServiceCard key={service.id} service={service} />
-              ))}
-            </div>
+            {/* You can map services here if you want to show them per category */}
           </div>
         ))}
       </div>

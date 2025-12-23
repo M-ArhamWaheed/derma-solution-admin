@@ -1,50 +1,16 @@
-import { Suspense } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Plus } from "lucide-react"
-import { getServices } from "@/lib/supabase/queries"
-import { ServicesTable } from "@/components/admin/services-table"
 
-async function ServicesList() {
-  const services = await getServices()
-  return <ServicesTable services={services} />
-}
+import { getCategories } from "@/lib/supabase/queries"
+import ClientServicesSection from "./_client-services-section"
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  const categories = await getCategories()
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold font-heading mb-2">Services</h1>
-          <p className="text-muted-foreground">
-            Manage your treatment services
-          </p>
-        </div>
-        <Button size="lg">
-          <Plus className="mr-2 h-4 w-4" />
-          Add Service
-        </Button>
+    <div className="min-h-screen w-full flex flex-col gap-10 px-12 py-10 bg-white">
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold font-heading mb-2">Services</h1>
+        <p className="text-muted-foreground text-lg">Manage your treatment services</p>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>All Services</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Suspense
-            fallback={
-              <div className="space-y-4">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <Skeleton key={i} className="h-16 w-full" />
-                ))}
-              </div>
-            }
-          >
-            <ServicesList />
-          </Suspense>
-        </CardContent>
-      </Card>
+      <ClientServicesSection categories={categories} />
     </div>
   )
 }
