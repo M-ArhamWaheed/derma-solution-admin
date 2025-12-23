@@ -1,7 +1,8 @@
+
 import { getCategories } from "@/lib/supabase/queries"
 import ClientCategoriesSection from "./_client-categories-section"
 
-
+export default async function CategoriesPage() {
   const categories = await getCategories()
   return (
     <div className="min-h-screen w-full flex flex-col gap-10 px-12 py-10 bg-white">
