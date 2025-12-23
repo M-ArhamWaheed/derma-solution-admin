@@ -1,0 +1,99 @@
+import { createServerClient } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
+
+export async function updateSession(request: NextRequest) {
+  let supabaseResponse = NextResponse.next({
+    request,
+  })
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(
+          cookiesToSet: {
+            name: string
+            value: string
+            options?: {
+              path?: string
+              domain?: string
+              httpOnly?: boolean
+              secure?: boolean
+              sameSite?: "lax" | "strict" | "none"
+              maxAge?: number
+              expires?: Date
+            }
+          }[]
+        ) {
+          cookiesToSet.forEach(({ name, value }) =>
+            request.cookies.set(name, value)
+          )
+          supabaseResponse = NextResponse.next({
+            request,
+          })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          )
+        },
+      },
+    }
+  )
+
+  // IMPORTANT: Avoid writing any logic between createServerClient and
+  // supabase.auth.getUser(). A simple mistake could make it very hard to debug
+  // issues with users being randomly logged out.
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  // Get user role from profiles table
+  let userRole = null
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+    
+    userRole = profile?.role
+  }
+
+  const path = request.nextUrl.pathname
+
+  // Protect auth routes
+  if (path.startsWith('/signin') || path.startsWith('/signup')) {
+    if (user) {
+      // Redirect to appropriate dashboard based on role
+      const redirectUrl = userRole === 'admin' ? '/admin' : '/dashboard'
+      return NextResponse.redirect(new URL(redirectUrl, request.url))
+    }
+  }
+
+  // Protect dashboard routes
+  if (path.startsWith('/dashboard')) {
+    if (!user) {
+      return NextResponse.redirect(new URL('/signin', request.url))
+    }
+    if (userRole === 'admin') {
+      return NextResponse.redirect(new URL('/admin', request.url))
+    }
+  }
+
+  // Protect admin routes
+  if (path.startsWith('/admin')) {
+    if (!user) {
+      return NextResponse.redirect(new URL('/signin', request.url))
+    }
+    if (userRole !== 'admin') {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+  }
+
+  return supabaseResponse
+}
+
