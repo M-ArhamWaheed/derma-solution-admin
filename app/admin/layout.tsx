@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { AdminSidebar } from "@/components/layout/admin-sidebar"
-import { Navbar } from "@/components/layout/navbar"
+import { AdminNavbar } from "@/components/layout/admin-navbar"
 
 export default async function AdminLayout({
   children,
@@ -32,7 +32,7 @@ export default async function AdminLayout({
     <div className="flex h-screen overflow-hidden " style={{ width: '100%' }}>
       <AdminSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Navbar user={profile} />
+        <AdminNavbar user={profile} />
         <main className="flex-1 overflow-y-auto bg-muted/10">
           {children}
         </main>

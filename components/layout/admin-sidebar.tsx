@@ -10,16 +10,10 @@ import {
   Sparkles,
   ShoppingCart,
   Mail,
-  Menu,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet"
 import { useState } from "react"
 
 const sidebarLinks = [
@@ -100,51 +94,29 @@ function SidebarContent({ onLinkClick, isCollapsed }: { onLinkClick?: () => void
 }
 
 export function AdminSidebar() {
-  const [mobileOpen, setMobileOpen] = useState(false)
   const [desktopCollapsed, setDesktopCollapsed] = useState(false)
 
   return (
-    <>
-      {/* Desktop Sidebar */}
-      <aside className={cn(
-        "hidden md:flex flex-col border-r bg-background transition-all duration-300 relative",
-        desktopCollapsed ? "w-16" : "w-64"
-      )}>
-        <SidebarContent isCollapsed={desktopCollapsed} />
-        
-        {/* Toggle Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setDesktopCollapsed(!desktopCollapsed)}
-          className="absolute -right-3 top-20 z-10 h-6 w-6 rounded-full border bg-background shadow-md hover:bg-accent"
-        >
-          {desktopCollapsed ? (
-            <ChevronRight className="h-4 w-4" />
-          ) : (
-            <ChevronLeft className="h-4 w-4" />
-          )}
-        </Button>
-      </aside>
-
-      {/* Mobile Sidebar */}
-      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        <SheetTrigger asChild>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="md:hidden fixed top-4 left-4 z-50 bg-background/80 backdrop-blur-sm"
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="left" className="p-0 w-64">
-          <div className="flex flex-col h-full">
-            <SidebarContent onLinkClick={() => setMobileOpen(false)} />
-          </div>
-        </SheetContent>
-      </Sheet>
-    </>
+    <aside className={cn(
+      "hidden md:flex flex-col border-r bg-background transition-all duration-300 relative",
+      desktopCollapsed ? "w-16" : "w-64"
+    )}>
+      <SidebarContent isCollapsed={desktopCollapsed} />
+      
+      {/* Toggle Button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setDesktopCollapsed(!desktopCollapsed)}
+        className="absolute -right-3 top-20 z-10 h-6 w-6 rounded-full border bg-background shadow-md hover:bg-accent"
+      >
+        {desktopCollapsed ? (
+          <ChevronRight className="h-4 w-4" />
+        ) : (
+          <ChevronLeft className="h-4 w-4" />
+        )}
+      </Button>
+    </aside>
   )
 }
 
