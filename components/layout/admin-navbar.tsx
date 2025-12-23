@@ -73,7 +73,10 @@ export function AdminNavbar({ user }: AdminNavbarProps) {
               <div className="flex h-full flex-col">
                 {/* Logo */}
                 <div className="flex h-16 items-center border-b px-6">
-                  <div className="bg-[#333333] dark:bg-white/10 px-4 py-2 rounded-lg">
+                  <div
+                    className="px-4 py-2 rounded-lg"
+                    style={{ backgroundColor: '#333333' }}
+                  >
                     <Image
                       src="/logos/logo.webp"
                       alt="Logo"
@@ -112,13 +115,18 @@ export function AdminNavbar({ user }: AdminNavbarProps) {
 
         {/* Centered Logo (Mobile) */}
         <div className="absolute left-1/2 -translate-x-1/2 md:hidden">
-          <Image
-            src="/logos/logo.webp"
-            alt="Logo"
-            width={100}
-            height={32}
-            className="object-contain"
-          />
+          <div
+            className="px-3 py-1.5 rounded-lg"
+            style={{ backgroundColor: '#333333' }}
+          >
+            <Image
+              src="/logos/logo.webp"
+              alt="Logo"
+              width={100}
+              height={32}
+              className="object-contain"
+            />
+          </div>
         </div>
 
         {/* Desktop - Empty space or title */}

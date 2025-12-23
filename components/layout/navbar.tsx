@@ -77,7 +77,10 @@ export function Navbar({ user, action }: NavbarProps) {
               <SheetContent side="left" className="w-64">
                 <SheetHeader>
                   <SheetTitle>
-                    <div className="bg-[#333333] dark:bg-white/10 px-4 py-2 rounded-lg inline-block">
+                    <div 
+                      className="px-4 py-2 rounded-lg inline-block"
+                      style={{ backgroundColor: '#333333' }}
+                    >
                       <Image
                         src="/logos/logo.webp"
                         alt="Derma Solution"
@@ -110,7 +113,10 @@ export function Navbar({ user, action }: NavbarProps) {
 
             {/* Logo - Hidden on mobile when menu is available */}
             <Link href="/dashboard" className="hidden md:block">
-              <div className="bg-[#333333] dark:bg-white/10 px-4 py-2 rounded-lg">
+              <div 
+                className="px-4 py-2 rounded-lg"
+                style={{ backgroundColor: '#333333' }}
+              >
                 <Image
                   src="/logos/logo.webp"
                   alt="Derma Solution"

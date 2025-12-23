@@ -54,14 +54,17 @@ function SidebarContent({ onLinkClick, isCollapsed }: { onLinkClick?: () => void
         isCollapsed ? "px-2" : "px-6"
       )}>
         <Link href="/admin" onClick={onLinkClick}>
-          <div className={cn(
-            "bg-[#333333] dark:bg-white/10 rounded-lg transition-all",
-            isCollapsed ? "p-2" : "px-4 py-2"
-          )}>
-            <Image 
+          <div
+            className={cn(
+              "rounded-lg transition-all",
+              isCollapsed ? "p-2" : "px-4 py-2"
+            )}
+            style={{ backgroundColor: '#333333' }}
+          >
+            <Image
               src={isCollapsed ? "/logos/favicon.webp" : "/logos/logo.webp"}
-              alt="Derma Solution" 
-              width={isCollapsed ? 40 : 120} 
+              alt="Derma Solution"
+              width={isCollapsed ? 40 : 120}
               height={isCollapsed ? 40 : 120}
               className="object-contain transition-all"
             />
@@ -107,7 +110,7 @@ export function AdminSidebar() {
       desktopCollapsed ? "w-16" : "w-64"
     )}>
       <SidebarContent isCollapsed={desktopCollapsed} />
-      
+
       {/* Toggle Button */}
       <Button
         variant="ghost"

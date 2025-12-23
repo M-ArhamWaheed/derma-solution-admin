@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from "lucide-react"
 
 export function Footer() {
@@ -8,9 +9,18 @@ export function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
           {/* Company Info */}
           <div className="space-y-3 md:space-y-4">
-            <h3 className="text-xl md:text-2xl font-bold font-heading text-primary">
-              Derma Solution
-            </h3>
+            <div 
+              className="px-4 py-2 rounded-lg inline-block"
+              style={{ backgroundColor: '#333333' }}
+            >
+              <Image
+                src="/logos/logo.webp"
+                alt="Derma Solution"
+                width={120}
+                height={40}
+                className="object-contain"
+              />
+            </div>
             <p className="text-xs md:text-sm text-muted-foreground">
               Aesthetic Skin Clinic
             </p>
