@@ -1,6 +1,7 @@
 import { SignUpForm } from "@/components/auth/signup-form"
 import { Metadata } from "next"
 import Link from "next/link"
+import Image from "next/image"
 
 export const metadata: Metadata = {
   title: "Sign Up | Derma Solution",
@@ -40,16 +41,17 @@ export default function SignUpPage() {
 
       {/* Right Side - Branding */}
       <div className="hidden lg:flex flex-1 bg-primary/10 dark:bg-primary/5 items-center justify-center p-8">
-        <div className="max-w-md space-y-6 text-center">
-          <div className="space-y-2">
-            <h2 className="text-5xl font-bold font-heading text-primary">
-              Derma Solution
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              Aesthetic Skin Clinic
-            </p>
+        <div className="max-w-md space-y-8 text-center">
+          <div className="flex justify-center">
+            <Image
+              src="/logos/logo.webp"
+              alt="Derma Solution Logo"
+              width={250}
+              height={250}
+              className="object-contain"
+            />
           </div>
-          <p className="text-muted-foreground">
+          <p className="text-lg text-muted-foreground leading-relaxed">
             Book appointments for professional aesthetic treatments and skin care services
           </p>
         </div>

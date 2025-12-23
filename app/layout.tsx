@@ -20,6 +20,11 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Derma Solution - Aesthetic Skin Clinic",
   description: "Book appointments for professional aesthetic treatments and skin care services",
+  icons: {
+    icon: '/logos/favicon.webp',
+    shortcut: '/logos/favicon.webp',
+    apple: '/logos/favicon.webp',
+  },
 };
 
 export default function RootLayout({
