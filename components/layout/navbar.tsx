@@ -77,13 +77,15 @@ export function Navbar({ user, action }: NavbarProps) {
               <SheetContent side="left" className="w-64">
                 <SheetHeader>
                   <SheetTitle>
-                    <Image
-                      src="/logos/logo.webp"
-                      alt="Derma Solution"
-                      width={120}
-                      height={40}
-                      className="object-contain"
-                    />
+                    <div className="bg-[#333333] dark:bg-white/10 px-4 py-2 rounded-lg inline-block">
+                      <Image
+                        src="/logos/logo.webp"
+                        alt="Derma Solution"
+                        width={120}
+                        height={40}
+                        className="object-contain"
+                      />
+                    </div>
                   </SheetTitle>
                 </SheetHeader>
                 <nav className="flex flex-col gap-4 mt-8">
@@ -108,13 +110,15 @@ export function Navbar({ user, action }: NavbarProps) {
 
             {/* Logo - Hidden on mobile when menu is available */}
             <Link href="/dashboard" className="hidden md:block">
-              <Image
-                src="/logos/logo.webp"
-                alt="Derma Solution"
-                width={120}
-                height={40}
-                className="object-contain"
-              />
+              <div className="bg-[#333333] dark:bg-white/10 px-4 py-2 rounded-lg">
+                <Image
+                  src="/logos/logo.webp"
+                  alt="Derma Solution"
+                  width={120}
+                  height={40}
+                  className="object-contain"
+                />
+              </div>
             </Link>
 
             {/* Desktop Action Button */}

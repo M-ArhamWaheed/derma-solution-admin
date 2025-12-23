@@ -1,39 +1,46 @@
 @import "tailwindcss";
 
 :root {
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
+  /* Light Theme */
+  --background: 0 0% 100%; /* White */
+  --foreground: 0 0% 20%; /* #333333 */
   --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
+  --card-foreground: 0 0% 20%;
   --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
-  --primary: 174 72% 56%;
-  --primary-foreground: 210 40% 98%;
+  --popover-foreground: 0 0% 20%;
+  --primary: 174 72% 56%; /* #42E0CF - Blueish */
+  --primary-foreground: 0 0% 100%; /* White text on primary */
   --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
+  --secondary-foreground: 0 0% 20%;
   --muted: 210 40% 96.1%;
   --muted-foreground: 215.4 16.3% 46.9%;
   --accent: 210 40% 96.1%;
-  --accent-foreground: 222.2 47.4% 11.2%;
+  --accent-foreground: 0 0% 20%;
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 210 40% 98%;
   --border: 214.3 31.8% 91.4%;
   --input: 214.3 31.8% 91.4%;
-  --ring: 174 72% 56%;
+  --ring: 174 72% 56%; /* #42E0CF */
   --radius: 0.5rem;
   --font-poppins: var(--font-poppins);
   --font-inter: var(--font-inter);
+  /* Button colors */
+  --button-default: 0 0% 20%; /* #333333 - Black */
+  --button-default-foreground: 0 0% 100%; /* White */
+  --button-hover: 174 72% 56%; /* #42E0CF - Blueish */
+  --button-hover-foreground: 0 0% 100%; /* White */
 }
 
 .dark {
+  /* Dark Theme */
   --background: 222.2 84% 4.9%;
   --foreground: 210 40% 98%;
   --card: 222.2 84% 4.9%;
   --card-foreground: 210 40% 98%;
   --popover: 222.2 84% 4.9%;
   --popover-foreground: 210 40% 98%;
-  --primary: 174 72% 56%;
-  --primary-foreground: 222.2 47.4% 11.2%;
+  --primary: 174 72% 56%; /* #42E0CF - Same blueish */
+  --primary-foreground: 0 0% 20%; /* Dark text on primary in dark mode */
   --secondary: 217.2 32.6% 17.5%;
   --secondary-foreground: 210 40% 98%;
   --muted: 217.2 32.6% 17.5%;
@@ -44,7 +51,12 @@
   --destructive-foreground: 210 40% 98%;
   --border: 217.2 32.6% 17.5%;
   --input: 217.2 32.6% 17.5%;
-  --ring: 174 72% 56%;
+  --ring: 174 72% 56%; /* #42E0CF */
+  /* Button colors for dark mode */
+  --button-default: 210 40% 98%; /* Light */
+  --button-default-foreground: 222.2 84% 4.9%; /* Dark */
+  --button-hover: 174 72% 56%; /* #42E0CF - Blueish */
+  --button-hover-foreground: 0 0% 100%; /* White */
 }
 
 @theme {
@@ -83,4 +95,53 @@ body {
   color: hsl(var(--foreground));
   font-family: var(--font-inter), sans-serif;
   font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* Container styles */
+.container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    max-width: 640px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1280px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .container {
+    max-width: 1536px;
+  }
+}
+
+/* Custom scrollbar */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

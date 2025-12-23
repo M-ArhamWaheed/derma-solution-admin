@@ -12,7 +12,7 @@ export default function SignInPage() {
   return (
     <div className="min-h-screen flex" style={{ width: '100%' }}>
       {/* Left Side - Form */}
-      <div className="flex-1 flex items-center justify-center p-8">
+      <div className="flex-1 flex items-center justify-center p-8 bg-background">
         <div className="w-full max-w-md space-y-8">
           <div className="space-y-2">
             <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-2 mb-8">
@@ -40,7 +40,7 @@ export default function SignInPage() {
       </div>
 
       {/* Right Side - Branding */}
-      <div className="hidden lg:flex flex-1 bg-primary/10 dark:bg-primary/5 items-center justify-center p-8">
+      <div className="hidden lg:flex flex-1 bg-[#333333] items-center justify-center p-8">
         <div className="max-w-md space-y-8 text-center">
           <div className="flex justify-center">
             <Image
@@ -51,7 +51,7 @@ export default function SignInPage() {
               className="object-contain"
             />
           </div>
-          <p className="text-lg text-muted-foreground leading-relaxed">
+          <p className="text-lg text-white/80 leading-relaxed">
             Book appointments for professional aesthetic treatments and skin care services
           </p>
         </div>
@@ -59,4 +59,3 @@ export default function SignInPage() {
     </div>
   )
 }
-

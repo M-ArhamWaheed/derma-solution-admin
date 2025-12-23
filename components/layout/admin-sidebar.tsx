@@ -54,13 +54,18 @@ function SidebarContent({ onLinkClick, isCollapsed }: { onLinkClick?: () => void
         isCollapsed ? "px-2" : "px-6"
       )}>
         <Link href="/admin" onClick={onLinkClick}>
-          <Image 
-            src={isCollapsed ? "/logos/favicon.webp" : "/logos/logo.webp"}
-            alt="Derma Solution" 
-            width={isCollapsed ? 40 : 120} 
-            height={isCollapsed ? 40 : 120}
-            className="object-contain transition-all"
-          />
+          <div className={cn(
+            "bg-[#333333] dark:bg-white/10 rounded-lg transition-all",
+            isCollapsed ? "p-2" : "px-4 py-2"
+          )}>
+            <Image 
+              src={isCollapsed ? "/logos/favicon.webp" : "/logos/logo.webp"}
+              alt="Derma Solution" 
+              width={isCollapsed ? 40 : 120} 
+              height={isCollapsed ? 40 : 120}
+              className="object-contain transition-all"
+            />
+          </div>
         </Link>
       </div>
 

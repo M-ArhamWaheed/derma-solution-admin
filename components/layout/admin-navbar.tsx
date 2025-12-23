@@ -73,13 +73,15 @@ export function AdminNavbar({ user }: AdminNavbarProps) {
               <div className="flex h-full flex-col">
                 {/* Logo */}
                 <div className="flex h-16 items-center border-b px-6">
-                  <Image
-                    src="/logos/logo.webp"
-                    alt="Logo"
-                    width={120}
-                    height={40}
-                    className="object-contain"
-                  />
+                  <div className="bg-[#333333] dark:bg-white/10 px-4 py-2 rounded-lg">
+                    <Image
+                      src="/logos/logo.webp"
+                      alt="Logo"
+                      width={120}
+                      height={40}
+                      className="object-contain"
+                    />
+                  </div>
                 </div>
 
                 {/* Navigation */}
