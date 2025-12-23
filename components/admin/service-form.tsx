@@ -33,9 +33,10 @@ export function ServiceForm({ onServiceSaved, initialValues, categories }: { onS
         const supabase = (await import("@/lib/supabase/client")).createClient()
         const fileExt = imageFile.name.split('.').pop()
         const fileName = `${safeSlug}-${Date.now()}.${fileExt}`
-        const { data, error } = await supabase.storage.from('service-images').upload(fileName, imageFile)
+        const { error } = await supabase.storage.from('service-images').upload(fileName, imageFile)
         if (error) throw error
-        finalThumbnail = supabase.storage.from('service-images').getPublicUrl(fileName).publicUrl
+        const { data: urlData } = supabase.storage.from('service-images').getPublicUrl(fileName)
+        finalThumbnail = urlData.publicUrl
         setThumbnail(finalThumbnail)
       } catch (err: any) {
         toast({ title: "Image upload failed", description: err.message, variant: "destructive" })

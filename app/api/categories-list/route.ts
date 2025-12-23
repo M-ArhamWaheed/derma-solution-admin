@@ -5,7 +5,8 @@ export async function GET() {
   try {
     const categories = await getCategories()
     return NextResponse.json(categories)
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'An error occurred'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

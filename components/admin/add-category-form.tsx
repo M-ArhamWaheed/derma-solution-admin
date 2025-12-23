@@ -36,9 +36,10 @@ export function AddCategoryForm({ onCategoryAdded, initialValues }: { onCategory
         const supabase = createClient()
         const fileExt = imageFile.name.split('.').pop()
         const fileName = `${slug}-${Date.now()}.${fileExt}`
-        const { data, error } = await supabase.storage.from('category-images').upload(fileName, imageFile)
+        const { error } = await supabase.storage.from('category-images').upload(fileName, imageFile)
         if (error) throw error
-        finalImageUrl = supabase.storage.from('category-images').getPublicUrl(fileName).publicUrl
+        const { data: urlData } = supabase.storage.from('category-images').getPublicUrl(fileName)
+        finalImageUrl = urlData.publicUrl
         setImageUrl(finalImageUrl)
       } catch (err: any) {
         toast({ title: "Image upload failed", description: err.message, variant: "destructive" })

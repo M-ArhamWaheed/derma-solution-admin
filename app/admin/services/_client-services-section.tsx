@@ -2,17 +2,23 @@
 
 import { useState, useEffect } from "react"
 import { ServiceForm } from "@/components/admin/service-form"
+import type { Category, ServiceWithCategory } from "@/types"
 
-export default function ClientServicesSection({ categories }: { categories: any[] }) {
-  const [services, setServices] = useState<any[]>([])
+export default function ClientServicesSection({ categories }: { categories: Category[] }) {
+  const [services, setServices] = useState<ServiceWithCategory[]>([])
   const [showForm, setShowForm] = useState(false)
-  const [editService, setEditService] = useState<any | null>(null)
+  const [editService, setEditService] = useState<ServiceWithCategory | null>(null)
 
   useEffect(() => {
+    const fetchServices = async () => {
+      const res = await fetch("/api/services")
+      if (res.ok) setServices(await res.json())
+    }
     fetchServices()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const fetchServices = async () => {
+  const refreshServices = async () => {
     const res = await fetch("/api/services")
     if (res.ok) setServices(await res.json())
   }
@@ -20,15 +26,15 @@ export default function ClientServicesSection({ categories }: { categories: any[
   const handleServiceSaved = () => {
     setShowForm(false)
     setEditService(null)
-    fetchServices()
+    refreshServices()
   }
 
-  const handleEdit = (service: any) => {
+  const handleEdit = (service: ServiceWithCategory) => {
     setEditService(service)
     setShowForm(true)
   }
 
-  const handleDelete = async (service: any) => {
+  const handleDelete = async (service: ServiceWithCategory) => {
     if (!window.confirm(`Delete service \"${service.name}\"?`)) return
     const res = await fetch(`/api/services/${service.id}`, { method: "DELETE" })
     if (res.ok) {

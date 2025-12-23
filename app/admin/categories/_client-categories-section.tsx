@@ -1,17 +1,16 @@
 "use client"
 
-
-
 import { useState } from "react"
+import Image from "next/image"
 import { AddCategoryForm } from "@/components/admin/add-category-form"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu"
+import type { Category } from "@/types"
 
-
-
-export default function ClientCategoriesSection({ initialCategories }: { initialCategories: any[] }) {
+export default function ClientCategoriesSection({ initialCategories }: { initialCategories: Category[] }) {
   const [categories, setCategories] = useState(initialCategories)
   const [showForm, setShowForm] = useState(false)
-  const [editCategory, setEditCategory] = useState<any | null>(null)
+  const [editCategory, setEditCategory] = useState<Category | null>(null)
+  
   const handleCategoryAdded = async () => {
     setShowForm(false)
     setEditCategory(null)
@@ -20,11 +19,13 @@ export default function ClientCategoriesSection({ initialCategories }: { initial
       setCategories(await res.json())
     }
   }
-  const handleEdit = (cat: any) => {
+  
+  const handleEdit = (cat: Category) => {
     setEditCategory(cat)
     setShowForm(true)
   }
-  const handleDelete = async (cat: any) => {
+  
+  const handleDelete = async (cat: Category) => {
     if (!window.confirm(`Delete category "${cat.name}"?`)) return
     const res = await fetch(`/api/categories/${cat.id}`, { method: "DELETE" })
     if (res.ok) {
@@ -60,7 +61,7 @@ export default function ClientCategoriesSection({ initialCategories }: { initial
                 <td className="px-4 py-2 border font-semibold">{cat.name}</td>
                 <td className="px-4 py-2 border">{cat.slug}</td>
                 <td className="px-4 py-2 border">{cat.description}</td>
-                <td className="px-4 py-2 border">{cat.image_url ? <img src={cat.image_url} alt={cat.name} className="h-10 w-10 object-cover rounded" /> : '-'}</td>
+                <td className="px-4 py-2 border">{cat.image_url ? <Image src={cat.image_url} alt={cat.name} width={40} height={40} className="object-cover rounded" /> : '-'}</td>
                 <td className="px-4 py-2 border text-center">{cat.display_order}</td>
                 <td className="px-4 py-2 border text-center">{cat.is_active ? 'Yes' : 'No'}</td>
                 <td className="px-4 py-2 border text-center">

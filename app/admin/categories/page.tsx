@@ -5,10 +5,10 @@ import ClientCategoriesSection from "./_client-categories-section"
 export default async function CategoriesPage() {
   const categories = await getCategories()
   return (
-    <div className="min-h-screen w-full flex flex-col gap-10 px-12 py-10 bg-white">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold font-heading mb-2">Categories</h1>
-        <p className="text-muted-foreground text-lg">Manage service categories</p>
+    <div className="p-6 space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold font-heading mb-2">Categories</h1>
+        <p className="text-muted-foreground">Manage service categories</p>
       </div>
       <ClientCategoriesSection initialCategories={categories} />
     </div>
