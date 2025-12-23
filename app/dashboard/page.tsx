@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button"
 import { HeroSection } from "@/components/dashboard/hero-section"
 import { CategoryButtons } from "@/components/dashboard/category-buttons"
 import { PopularServices } from "@/components/dashboard/popular-services"
+import { ServicesGridSection } from "@/components/dashboard/services-grid-section"
+import { ClinicVisionSection } from "@/components/dashboard/clinic-vision-section"
+import { WhyChooseUsSection } from "@/components/dashboard/why-choose-us-section"
 import { CategoriesSection } from "@/components/dashboard/categories-section"
 import { PromoSection } from "@/components/dashboard/promo-section"
 import { ReviewsSection } from "@/components/dashboard/reviews-section"
@@ -96,6 +99,15 @@ export default async function DashboardPage() {
         >
           <PopularServices />
         </Suspense>
+
+        {/* New: Clinic Vision Section */}
+        <ClinicVisionSection />
+
+        {/* New: Modern Services Grid */}
+        <ServicesGridSection />
+
+        {/* New: Why Choose Us Section */}
+        <WhyChooseUsSection />
 
         <Suspense
           fallback={
