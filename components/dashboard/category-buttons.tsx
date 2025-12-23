@@ -8,17 +8,15 @@ interface CategoryButtonsProps {
 }
 
 export function CategoryButtons({ categories }: CategoryButtonsProps) {
-  const topCategories = categories.slice(0, 4)
-
   const scrollToCategory = (categoryId: string) => {
     const element = document.getElementById(`category-${categoryId}`)
     element?.scrollIntoView({ behavior: "smooth", block: "start" })
   }
 
   return (
-    <section className="container py-8">
+    <section className="container py-4">
       <div className="flex flex-wrap gap-4 justify-center">
-        {topCategories.map((category) => (
+        {categories.map((category) => (
           <Button
             key={category.id}
             variant="outline"

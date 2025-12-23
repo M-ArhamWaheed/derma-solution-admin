@@ -45,18 +45,19 @@ export function Navbar({ user, title, action }: NavbarProps) {
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between">
+      <div className="container flex h-16 items-center justify-between relative">
         {/* Left Section - Action Button */}
         <div className="flex items-center gap-4">
           {action}
         </div>
 
-        {/* Center Section - Title */}
-        {title && (
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-            <h1 className="text-lg font-semibold font-heading">{title}</h1>
-          </div>
-        )}
+        {/* Center Section - Navigation Links */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex gap-6">
+          <a href="/dashboard" className="text-base font-medium text-muted-foreground hover:text-primary transition-colors">Home</a>
+          <a href="/treatments" className="text-base font-medium text-muted-foreground hover:text-primary transition-colors">Services</a>
+          <a href="/orders" className="text-base font-medium text-muted-foreground hover:text-primary transition-colors">Orders</a>
+          <a href="/about" className="text-base font-medium text-muted-foreground hover:text-primary transition-colors">About Us</a>
+        </div>
 
         {/* Right Section - User Menu */}
         <div className="flex items-center gap-3">

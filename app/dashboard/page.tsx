@@ -11,7 +11,7 @@ import { CategoriesSection } from "@/components/dashboard/categories-section"
 import { PromoSection } from "@/components/dashboard/promo-section"
 import { ReviewsSection } from "@/components/dashboard/reviews-section"
 import { Skeleton } from "@/components/ui/skeleton"
-import { getCategories } from "@/lib/supabase/queries"
+// import { getCategories } from "@/lib/supabase/queries"
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -34,7 +34,22 @@ export default async function DashboardPage() {
     redirect("/admin")
   }
 
-  const categories = await getCategories()
+  // Dummy categories for UI testing
+  const now = new Date().toISOString();
+  const categories = [
+    { id: "1", name: "Facials", display_order: 1, is_active: true, created_at: now, updated_at: now },
+    { id: "2", name: "Laser Hair Removal", display_order: 2, is_active: true, created_at: now, updated_at: now },
+    { id: "3", name: "Botox", display_order: 3, is_active: true, created_at: now, updated_at: now },
+    { id: "4", name: "Fillers", display_order: 4, is_active: true, created_at: now, updated_at: now },
+    { id: "5", name: "Peels", display_order: 5, is_active: true, created_at: now, updated_at: now },
+    { id: "6", name: "Acne Treatment", display_order: 6, is_active: true, created_at: now, updated_at: now },
+    { id: "7", name: "Facials", display_order: 7, is_active: true, created_at: now, updated_at: now },
+    { id: "8", name: "Laser Hair Removal", display_order: 8, is_active: true, created_at: now, updated_at: now },
+    { id: "9", name: "Botox", display_order: 9, is_active: true, created_at: now, updated_at: now },
+    { id: "10", name: "Fillers", display_order: 10, is_active: true, created_at: now, updated_at: now },
+    { id: "11", name: "Peels", display_order: 11, is_active: true, created_at: now, updated_at: now },
+    { id: "12", name: "Acne Treatment", display_order: 12, is_active: true, created_at: now, updated_at: now },
+  ];
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -50,6 +65,7 @@ export default async function DashboardPage() {
       <main className="flex-1">
         <HeroSection />
 
+        {/* Category Buttons directly under hero text */}
         <Suspense
           fallback={
             <div className="container py-8">

@@ -1,15 +1,41 @@
-import { getFeaturedReviews } from "@/lib/supabase/queries"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Star } from "lucide-react"
 
-export async function ReviewsSection() {
-  const reviews = await getFeaturedReviews()
+const dummyReviews = [
+  {
+    id: 1,
+    customer: {
+      first_name: "Emily",
+      last_name: "Smith",
+      avatar_url: "https://randomuser.me/api/portraits/women/44.jpg",
+    },
+    rating: 5,
+    text: "Absolutely amazing experience! The staff was so friendly and professional. My skin has never looked better.",
+  },
+  {
+    id: 2,
+    customer: {
+      first_name: "John",
+      last_name: "Doe",
+      avatar_url: "https://randomuser.me/api/portraits/men/32.jpg",
+    },
+    rating: 4,
+    text: "Great service and very knowledgeable therapists. Highly recommend for anyone looking for quality treatments.",
+  },
+  {
+    id: 3,
+    customer: {
+      first_name: "Sophia",
+      last_name: "Lee",
+      avatar_url: "https://randomuser.me/api/portraits/women/68.jpg",
+    },
+    rating: 5,
+    text: "I felt so comfortable and cared for. The results were fantastic and I will definitely be coming back!",
+  },
+]
 
-  if (reviews.length === 0) {
-    return null
-  }
-
+export function ReviewsSection() {
   return (
     <section className="py-16 bg-muted/30">
       <div className="container">
@@ -23,7 +49,7 @@ export async function ReviewsSection() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {reviews.map((review) => (
+          {dummyReviews.map((review) => (
             <Card key={review.id}>
               <CardContent className="p-6 space-y-4">
                 <div className="flex items-center gap-3">
@@ -49,14 +75,8 @@ export async function ReviewsSection() {
                   </div>
                 </div>
 
-                {review.comment && (
-                  <p className="text-sm text-muted-foreground">
-                    {review.comment}
-                  </p>
-                )}
-
-                <p className="text-xs text-muted-foreground">
-                  Service: {review.service.name}
+                <p className="text-sm text-muted-foreground">
+                  {review.text}
                 </p>
               </CardContent>
             </Card>

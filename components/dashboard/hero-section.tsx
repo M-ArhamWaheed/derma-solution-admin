@@ -1,8 +1,8 @@
 export function HeroSection() {
   return (
-    <section className="relative py-20 md:py-32 bg-gradient-to-br from-primary/10 via-background to-background">
+    <section className="relative py-8 md:py-20 bg-gradient-to-br from-primary/10 via-background to-background">
       <div className="container">
-        <div className="max-w-3xl mx-auto text-center space-y-6">
+        <div className="max-w-3xl mx-auto text-center space-y-5">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-heading text-foreground leading-tight">
             Treatments at{" "}
             <span className="text-primary">Derma Solution</span>

@@ -1,30 +1,82 @@
-import { getPopularServices } from "@/lib/supabase/queries"
-import { ServiceCard } from "@/components/dashboard/service-card"
 
-export async function PopularServices() {
-  const services = await getPopularServices()
+// Dummy data for now
+const popularServices = [
+  {
+    id: 1,
+    title: "3 Area Package",
+    subtitle: "Anti-Wrinkle Injections",
+    price: 189,
+    label: "New Client Offer!",
+    image: "/popular1.jpg",
+    button: "Book now",
+    tag: null,
+  },
+  {
+    id: 2,
+    title: "Full Body (excluding face)",
+    subtitle: "Laser Hair Removal",
+    price: 129.95,
+    label: null,
+    image: "/popular2.jpg",
+    button: "Buy now",
+    tag: "Laser Hair Removal",
+  },
+  {
+    id: 3,
+    title: "For Radiant Skin",
+    subtitle: "Polynucleotides",
+    price: 195,
+    label: "Popular!",
+    image: "/popular3.jpg",
+    button: "Buy now",
+    tag: null,
+  },
+]
 
-  if (services.length === 0) {
-    return null
-  }
+interface ServiceType {
+  id: number;
+  title: string;
+  subtitle: string;
+  price: number;
+  label: string | null;
+  image: string;
+  button: string;
+  tag: string | null;
+}
 
+function ServiceCard({ service }: { service: ServiceType }) {
   return (
-    <section className="py-16 bg-card">
-      <div className="container">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-2">
-              SALE NOW ON
-            </p>
-            <h2 className="text-3xl md:text-4xl font-bold font-heading">
-              Most Popular Offers
-            </h2>
-          </div>
+    <div className="relative min-w-[340px] max-w-[340px] h-[440px] rounded-lg overflow-hidden shadow-lg bg-background flex flex-col justify-end" style={{ backgroundImage: `url(${service.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+      <div className="absolute inset-0 bg-black/30 z-0" />
+      <div className="relative z-10 p-6 flex flex-col h-full justify-end">
+        {service.label && <span className="absolute top-4 left-4 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded">{service.label}</span>}
+        {service.tag && <span className="absolute top-4 left-4 bg-white/80 text-xs font-semibold text-black px-3 py-1 rounded border border-black/10">{service.tag}</span>}
+        <div className="mt-auto">
+          <div className="text-lg text-white/90 font-medium mb-1">{service.subtitle}</div>
+          <div className="text-3xl md:text-4xl font-bold text-white leading-tight mb-2">{service.title}</div>
+          <div className="text-xs text-white/80 mb-1">FROM</div>
+          <div className="text-3xl font-bold text-white mb-4">£{service.price}<span className="text-xl align-top">{service.price % 1 !== 0 ? service.price.toFixed(2).split('.')[1] : '.00'}</span></div>
+          <button className="bg-[#7B61FF] text-white font-semibold px-6 py-2 rounded-full text-sm shadow hover:bg-[#6a4ee6] transition">{service.button}</button>
         </div>
+      </div>
+    </div>
+  )
+}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map((service) => (
-            <ServiceCard key={service.id} service={service} featured />
+export function PopularServices() {
+  return (
+    <section className="container mt-8 flex flex-col items-center">
+      <div className="flex items-center justify-between w-full mb-2">
+        <div className="uppercase text-sm text-[#7B61FF] font-semibold tracking-wider">Sale now on</div>
+        <a href="#" className="text-[#7B61FF] font-semibold text-sm hover:underline">View all</a>
+      </div>
+      <h2 className="text-4xl md:text-5xl font-serif font-normal text-white leading-tight text-center mb-4 w-full">Most Popular Offers</h2>
+      <div className="relative w-full flex justify-center">
+        <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-2 justify-center" style={{ scrollSnapType: 'x mandatory' }}>
+          {popularServices.map((service) => (
+            <div key={service.id} style={{ scrollSnapAlign: 'start' }}>
+              <ServiceCard service={service} />
+            </div>
           ))}
         </div>
       </div>
