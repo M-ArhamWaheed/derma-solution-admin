@@ -8,11 +8,9 @@ import type { Category } from "@/types"
 
 export default function ClientCategoriesSection({ initialCategories }: { initialCategories: Category[] }) {
   const [categories, setCategories] = useState(initialCategories)
-  const [showForm, setShowForm] = useState(false)
   const [editCategory, setEditCategory] = useState<Category | null>(null)
   
   const handleCategoryAdded = async () => {
-    setShowForm(false)
     setEditCategory(null)
     const res = await fetch("/api/categories-list")
     if (res.ok) {
@@ -22,7 +20,8 @@ export default function ClientCategoriesSection({ initialCategories }: { initial
   
   const handleEdit = (cat: Category) => {
     setEditCategory(cat)
-    setShowForm(true)
+    // Scroll to form
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
   
   const handleDelete = async (cat: Category) => {
@@ -32,16 +31,20 @@ export default function ClientCategoriesSection({ initialCategories }: { initial
       setCategories(categories.filter((c) => c.id !== cat.id))
     }
   }
+  
+  const handleCancelEdit = () => {
+    setEditCategory(null)
+  }
+  
   return (
     <>
-      <div className="mb-6">
-        <button className="bg-primary text-white px-4 py-2 rounded" onClick={() => { setShowForm(v => !v); setEditCategory(null); }}>
-          {showForm && !editCategory ? "Cancel" : "Add Category"}
-        </button>
+      <div className="mb-8">
+        <AddCategoryForm 
+          onCategoryAdded={handleCategoryAdded} 
+          initialValues={editCategory}
+          onCancel={handleCancelEdit}
+        />
       </div>
-      {showForm && (
-        <AddCategoryForm onCategoryAdded={handleCategoryAdded} initialValues={editCategory} />
-      )}
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border rounded shadow">
           <thead>

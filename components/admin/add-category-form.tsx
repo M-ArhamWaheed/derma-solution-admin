@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client"
 import { toast } from "@/hooks/use-toast"
 // import { createCategory } from "@/lib/supabase/create-category"
 
-export function AddCategoryForm({ onCategoryAdded, initialValues }: { onCategoryAdded?: () => void, initialValues?: any }) {
+export function AddCategoryForm({ onCategoryAdded, initialValues, onCancel }: { onCategoryAdded?: () => void, initialValues?: any, onCancel?: () => void }) {
   const [name, setName] = useState(initialValues?.name || "")
   const [description, setDescription] = useState(initialValues?.description || "")
   const [slug, setSlug] = useState(initialValues?.slug || "")
@@ -101,7 +101,11 @@ export function AddCategoryForm({ onCategoryAdded, initialValues }: { onCategory
   }
 
   return (
-    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+    <div className={`rounded-lg border p-6 ${initialValues?.id ? 'border-primary bg-primary/5' : 'border-border bg-card'}`}>
+      <h3 className="text-lg font-semibold mb-4">
+        {initialValues?.id ? '✏️ Edit Category' : '➕ Add New Category'}
+      </h3>
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <div>
         <label className="block mb-1 font-medium">Name</label>
         <Input value={name} onChange={e => setName(e.target.value)} placeholder="Category name" required />
@@ -130,9 +134,17 @@ export function AddCategoryForm({ onCategoryAdded, initialValues }: { onCategory
         <input type="checkbox" checked={isActive} onChange={e => setIsActive(e.target.checked)} id="isActive" />
         <label htmlFor="isActive" className="font-medium">Active</label>
       </div>
-      <Button type="submit" disabled={isPending || updating} size="lg" className="col-span-full">
-        {initialValues?.id ? (updating ? "Updating..." : "Update Category") : "Add Category"}
-      </Button>
+      <div className="col-span-full flex gap-3">
+        <Button type="submit" disabled={isPending || updating} size="lg" className="flex-1">
+          {initialValues?.id ? (updating ? "Updating..." : "Update Category") : "Add Category"}
+        </Button>
+        {initialValues?.id && onCancel && (
+          <Button type="button" variant="outline" size="lg" onClick={onCancel}>
+            Cancel Edit
+          </Button>
+        )}
+      </div>
     </form>
+    </div>
   )
 }

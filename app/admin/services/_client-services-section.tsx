@@ -6,7 +6,6 @@ import type { Category, ServiceWithCategory } from "@/types"
 
 export default function ClientServicesSection({ categories }: { categories: Category[] }) {
   const [services, setServices] = useState<ServiceWithCategory[]>([])
-  const [showForm, setShowForm] = useState(false)
   const [editService, setEditService] = useState<ServiceWithCategory | null>(null)
 
   useEffect(() => {
@@ -15,7 +14,6 @@ export default function ClientServicesSection({ categories }: { categories: Cate
       if (res.ok) setServices(await res.json())
     }
     fetchServices()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const refreshServices = async () => {
@@ -24,14 +22,14 @@ export default function ClientServicesSection({ categories }: { categories: Cate
   }
 
   const handleServiceSaved = () => {
-    setShowForm(false)
     setEditService(null)
     refreshServices()
   }
 
   const handleEdit = (service: ServiceWithCategory) => {
     setEditService(service)
-    setShowForm(true)
+    // Scroll to form
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleDelete = async (service: ServiceWithCategory) => {
@@ -42,16 +40,20 @@ export default function ClientServicesSection({ categories }: { categories: Cate
     }
   }
 
+  const handleCancelEdit = () => {
+    setEditService(null)
+  }
+
   return (
     <>
-      <div className="mb-6">
-        <button className="bg-primary text-white px-4 py-2 rounded" onClick={() => { setShowForm(v => !v); setEditService(null); }}>
-          {showForm && !editService ? "Cancel" : "Add Service"}
-        </button>
+      <div className="mb-8">
+        <ServiceForm 
+          onServiceSaved={handleServiceSaved} 
+          initialValues={editService} 
+          categories={categories}
+          onCancel={handleCancelEdit}
+        />
       </div>
-      {showForm && (
-        <ServiceForm onServiceSaved={handleServiceSaved} initialValues={editService} categories={categories} />
-      )}
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border rounded shadow">
           <thead>

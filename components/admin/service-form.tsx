@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { toast } from "@/hooks/use-toast"
 
-export function ServiceForm({ onServiceSaved, initialValues, categories }: { onServiceSaved?: () => void, initialValues?: any, categories: any[] }) {
+export function ServiceForm({ onServiceSaved, initialValues, categories, onCancel }: { onServiceSaved?: () => void, initialValues?: any, categories: any[], onCancel?: () => void }) {
   const [name, setName] = useState(initialValues?.name || "")
   const [slug, setSlug] = useState(initialValues?.slug?.trim() || "")
   const [description, setDescription] = useState(initialValues?.description || "")
@@ -104,7 +104,11 @@ export function ServiceForm({ onServiceSaved, initialValues, categories }: { onS
   }
 
   return (
-    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+    <div className={`rounded-lg border p-6 ${initialValues?.id ? 'border-primary bg-primary/5' : 'border-border bg-card'}`}>
+      <h3 className="text-lg font-semibold mb-4">
+        {initialValues?.id ? '✏️ Edit Service' : '➕ Add New Service'}
+      </h3>
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <div>
         <label className="block mb-1 font-medium">Name</label>
         <Input value={name} onChange={e => setName(e.target.value)} placeholder="Service name" required />
@@ -150,9 +154,17 @@ export function ServiceForm({ onServiceSaved, initialValues, categories }: { onS
         <input type="checkbox" checked={isActive} onChange={e => setIsActive(e.target.checked)} id="isActive" />
         <label htmlFor="isActive" className="font-medium">Active</label>
       </div>
-      <Button type="submit" disabled={isPending || uploading} size="lg" className="col-span-full">
-        {initialValues?.id ? "Update Service" : "Add Service"}
-      </Button>
+      <div className="col-span-full flex gap-3">
+        <Button type="submit" disabled={isPending || uploading} size="lg" className="flex-1">
+          {initialValues?.id ? "Update Service" : "Add Service"}
+        </Button>
+        {initialValues?.id && onCancel && (
+          <Button type="button" variant="outline" size="lg" onClick={onCancel}>
+            Cancel Edit
+          </Button>
+        )}
+      </div>
     </form>
+    </div>
   )
 }
