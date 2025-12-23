@@ -1,4 +1,3 @@
-import Image from "next/image"
 import { Sparkles, Heart, Shield, Award } from "lucide-react"
 
 export function ClinicVisionSection() {

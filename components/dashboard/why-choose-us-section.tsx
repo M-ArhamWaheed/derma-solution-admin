@@ -42,8 +42,8 @@ export function WhyChooseUsSection() {
               Your Trusted Partner in Aesthetic Care
             </h2>
             <p className="text-muted-foreground text-base md:text-lg mb-6 md:mb-8">
-              We're committed to providing exceptional aesthetic treatments in a safe, 
-              comfortable, and professional environment. Your satisfaction and wellbeing 
+              We&apos;re committed to providing exceptional aesthetic treatments in a safe,
+              comfortable, and professional environment. Your satisfaction and wellbeing
               are our top priorities.
             </p>
 

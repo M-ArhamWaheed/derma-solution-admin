@@ -1,11 +1,13 @@
 "use client"
 
 import { useState, useTransition } from "react"
+import Image from "next/image"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { toast } from "@/hooks/use-toast"
+import type { Service, Category } from "@/types/database"
 
-export function ServiceForm({ onServiceSaved, initialValues, categories, onCancel }: { onServiceSaved?: () => void, initialValues?: any, categories: any[], onCancel?: () => void }) {
+export function ServiceForm({ onServiceSaved, initialValues, categories, onCancel }: { onServiceSaved?: () => void, initialValues?: Partial<Service>, categories: Category[], onCancel?: () => void }) {
   const [name, setName] = useState(initialValues?.name || "")
   const [slug, setSlug] = useState(initialValues?.slug?.trim() || "")
   const [description, setDescription] = useState(initialValues?.description || "")
@@ -38,8 +40,9 @@ export function ServiceForm({ onServiceSaved, initialValues, categories, onCance
         const { data: urlData } = supabase.storage.from('service-images').getPublicUrl(fileName)
         finalThumbnail = urlData.publicUrl
         setThumbnail(finalThumbnail)
-      } catch (err: any) {
-        toast({ title: "Image upload failed", description: err.message, variant: "destructive" })
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : "Unknown error"
+        toast({ title: "Image upload failed", description: errorMessage, variant: "destructive" })
         setUploading(false)
         return
       }
@@ -97,8 +100,9 @@ export function ServiceForm({ onServiceSaved, initialValues, categories, onCance
         setThumbnail("")
         setImageFile(null)
         onServiceSaved?.()
-      } catch (err: any) {
-        toast({ title: `Error ${initialValues?.id ? "updating" : "creating"} service`, description: err.message, variant: "destructive" })
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : "Unknown error"
+        toast({ title: `Error ${initialValues?.id ? "updating" : "creating"} service`, description: errorMessage, variant: "destructive" })
       }
     })
   }
@@ -153,7 +157,7 @@ export function ServiceForm({ onServiceSaved, initialValues, categories, onCance
         />
         {uploading && <span className="text-xs text-muted-foreground">Uploading...</span>}
         {thumbnail && !imageFile && (
-          <div className="mt-2"><img src={thumbnail} alt="Current" className="h-10 w-10 object-cover rounded" /></div>
+          <div className="mt-2"><Image src={thumbnail} alt="Current" width={40} height={40} className="object-cover rounded" /></div>
         )}
       </div>
       <div className="flex items-center gap-2 mt-6">

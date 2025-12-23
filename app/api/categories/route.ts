@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 
 export async function POST(req: NextRequest) {
   const body = await req.json()
-  const { name, description, slug, image_url, display_order, is_active } = body
+  const { name, description, slug, image_url } = body
   if (!name || !slug) {
     return NextResponse.json({ error: "Name and slug are required" }, { status: 400 })
   }

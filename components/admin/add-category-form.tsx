@@ -1,13 +1,15 @@
 "use client"
 
 import { useState, useTransition } from "react"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "@/hooks/use-toast"
+import type { Category } from "@/types/database"
 // import { createCategory } from "@/lib/supabase/create-category"
 
-export function AddCategoryForm({ onCategoryAdded, initialValues, onCancel }: { onCategoryAdded?: () => void, initialValues?: any, onCancel?: () => void }) {
+export function AddCategoryForm({ onCategoryAdded, initialValues, onCancel }: { onCategoryAdded?: () => void, initialValues?: Partial<Category>, onCancel?: () => void }) {
   const [name, setName] = useState(initialValues?.name || "")
   const [description, setDescription] = useState(initialValues?.description || "")
   const [slug, setSlug] = useState(initialValues?.slug || "")
@@ -41,8 +43,9 @@ export function AddCategoryForm({ onCategoryAdded, initialValues, onCancel }: { 
         const { data: urlData } = supabase.storage.from('category-images').getPublicUrl(fileName)
         finalImageUrl = urlData.publicUrl
         setImageUrl(finalImageUrl)
-      } catch (err: any) {
-        toast({ title: "Image upload failed", description: err.message, variant: "destructive" })
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : "Unknown error"
+        toast({ title: "Image upload failed", description: errorMessage, variant: "destructive" })
         setUploading(false)
         return
       }
@@ -93,8 +96,9 @@ export function AddCategoryForm({ onCategoryAdded, initialValues, onCancel }: { 
         setIsActive(true)
         setUpdating(false)
         onCategoryAdded?.()
-      } catch (err: any) {
-        toast({ title: `Error ${initialValues?.id ? "updating" : "creating"} category`, description: err.message, variant: "destructive" })
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : "Unknown error"
+        toast({ title: `Error ${initialValues?.id ? "updating" : "creating"} category`, description: errorMessage, variant: "destructive" })
         setUpdating(false)
       }
     })
@@ -128,7 +132,7 @@ export function AddCategoryForm({ onCategoryAdded, initialValues, onCancel }: { 
         />
         {uploading && <span className="text-xs text-muted-foreground">Uploading...</span>}
         {imageUrl && !imageFile && (
-          <div className="mt-2"><img src={imageUrl} alt="Current" className="h-10 w-10 object-cover rounded" /></div>
+          <div className="mt-2"><Image src={imageUrl} alt="Current" width={40} height={40} className="object-cover rounded" /></div>
         )}
       </div>
       <div>

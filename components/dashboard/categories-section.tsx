@@ -4,8 +4,18 @@ import { Badge } from "@/components/ui/badge"
 import { ArrowRight, Sparkles } from "lucide-react"
 import Image from "next/image"
 
+interface DummyService {
+  id: number
+  name: string
+  description: string
+  base_price: number
+  duration: string
+  is_popular?: boolean
+  thumbnail?: string
+}
+
 // Enhanced dummy services per category
-const categoryServices: Record<string, any[]> = {
+const categoryServices: Record<string, DummyService[]> = {
   "default": [
     {
       id: 1,
@@ -34,7 +44,7 @@ const categoryServices: Record<string, any[]> = {
   ]
 }
 
-function ServiceCard({ service, index }: { service: any, index: number }) {
+function ServiceCard({ service, index }: { service: DummyService, index: number }) {
   const gradients = [
     "from-purple-500/10 to-pink-500/10",
     "from-blue-500/10 to-cyan-500/10",
@@ -193,7 +203,7 @@ export async function CategoriesSection() {
         {/* Bottom CTA */}
         <div className="text-center pt-8 border-t px-4">
           <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">
-            Can't find what you're looking for?
+            Can&apos;t find what you&apos;re looking for?
           </h3>
           <p className="text-sm md:text-base text-muted-foreground mb-4 md:mb-6">
             Contact us for a personalized consultation

@@ -10,7 +10,6 @@ import { PopularServices } from "@/components/dashboard/popular-services"
 import { ServicesGridSection } from "@/components/dashboard/services-grid-section"
 import { ClinicVisionSection } from "@/components/dashboard/clinic-vision-section"
 import { WhyChooseUsSection } from "@/components/dashboard/why-choose-us-section"
-import { CategoriesSection } from "@/components/dashboard/categories-section"
 import { PromoSection } from "@/components/dashboard/promo-section"
 import { ReviewsSection } from "@/components/dashboard/reviews-section"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -108,16 +107,6 @@ export default async function DashboardPage() {
 
         {/* New: Why Choose Us Section */}
         <WhyChooseUsSection />
-
-        <Suspense
-          fallback={
-            <div className="container py-16">
-              <Skeleton className="h-96" />
-            </div>
-          }
-        >
-          <CategoriesSection />
-        </Suspense>
 
         <PromoSection />
 
