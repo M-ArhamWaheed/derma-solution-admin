@@ -6,7 +6,7 @@ import type { Category, ServiceWithCategory } from "@/types"
 
 export default function ClientServicesSection({ categories }: { categories: Category[] }) {
   const [services, setServices] = useState<ServiceWithCategory[]>([])
-  const [editService, setEditService] = useState<ServiceWithCategory | null>(null)
+  const [editService, setEditService] = useState<ServiceWithCategory | undefined>(undefined)
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -22,7 +22,7 @@ export default function ClientServicesSection({ categories }: { categories: Cate
   }
 
   const handleServiceSaved = () => {
-    setEditService(null)
+    setEditService(undefined)
     refreshServices()
   }
 
@@ -41,7 +41,7 @@ export default function ClientServicesSection({ categories }: { categories: Cate
   }
 
   const handleCancelEdit = () => {
-    setEditService(null)
+    setEditService(undefined)
   }
 
   return (

@@ -10,6 +10,7 @@ interface DummyService {
   description: string
   base_price: number
   duration: string
+  popular?: boolean
   is_popular?: boolean
   thumbnail?: string
 }

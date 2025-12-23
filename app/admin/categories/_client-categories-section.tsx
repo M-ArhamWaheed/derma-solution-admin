@@ -8,10 +8,10 @@ import type { Category } from "@/types"
 
 export default function ClientCategoriesSection({ initialCategories }: { initialCategories: Category[] }) {
   const [categories, setCategories] = useState(initialCategories)
-  const [editCategory, setEditCategory] = useState<Category | null>(null)
+  const [editCategory, setEditCategory] = useState<Category | undefined>(undefined)
   
   const handleCategoryAdded = async () => {
-    setEditCategory(null)
+    setEditCategory(undefined)
     const res = await fetch("/api/categories-list")
     if (res.ok) {
       setCategories(await res.json())
@@ -33,7 +33,7 @@ export default function ClientCategoriesSection({ initialCategories }: { initial
   }
   
   const handleCancelEdit = () => {
-    setEditCategory(null)
+    setEditCategory(undefined)
   }
   
   return (
