@@ -6,8 +6,7 @@ import { Footer } from "@/components/layout/footer"
 import { HeroSection } from "@/components/dashboard/hero-section"
 import { CategoryButtons } from "@/components/dashboard/category-buttons"
 import { Skeleton } from "@/components/ui/skeleton"
-import dynamic from "next/dynamic"
-const ServicesGallery = dynamic(() => import("@/components/dashboard/services-gallery").then(m => m.ServicesGallery), { ssr: false })
+import { ServicesGallery } from "@/components/dashboard/services-gallery"
 // import { getCategories } from "@/lib/supabase/queries"
 
 export default async function DashboardPage() {
@@ -17,18 +16,18 @@ export default async function DashboardPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) {
-    redirect("/signin")
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .maybeSingle()
-
-  if (profile?.role === "admin") {
-    redirect("/admin")
+  // If a logged-in admin visits the dashboard, send them to the admin area.
+  let profile = null
+  if (user) {
+    const { data: profileData } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .maybeSingle()
+    profile = profileData || null
+    if (profile?.role === "admin") {
+      redirect("/admin")
+    }
   }
 
   // Dummy categories for UI testing
@@ -50,9 +49,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen flex flex-col overflow-x-hidden">
-      <Navbar
-        user={profile}
-      />
+      <Navbar user={profile} />
 
       <main className="flex-1 w-full overflow-x-hidden">
         <HeroSection />

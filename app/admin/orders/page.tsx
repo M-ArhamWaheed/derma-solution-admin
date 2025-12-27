@@ -11,7 +11,7 @@ async function OrdersList({ page }: { page: number }) {
   )
 }
 
-export default async function OrdersPage({ searchParams }: { searchParams?: { page?: string } }) {
+export default async function OrdersPage({ searchParams }: any) {
   const page = parseInt(searchParams?.page || "1", 10) || 1
 
   return (

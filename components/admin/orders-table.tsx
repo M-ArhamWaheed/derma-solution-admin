@@ -22,7 +22,7 @@ interface OrdersTableProps {
   pageSize?: number
 }
 
-function OrdersTableComponent({ orders }: OrdersTableProps) {
+function OrdersTableComponent({ orders, currentPage, totalCount, pageSize }: OrdersTableProps) {
   const getStatusVariant = (
     status: string
   ): "default" | "secondary" | "destructive" | "outline" => {

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, startTransition } from 'react'
 import { UsersTable } from './users-table'
 import { useDebouncedValue } from '@/hooks/useDebouncedValue'
 
@@ -24,7 +24,7 @@ export function UsersClient({ initialPage = 1, pageSize = 20 }: { initialPage?: 
 
   useEffect(() => {
     let mounted = true
-    setLoading(true)
+    startTransition(() => setLoading(true))
     fetchUsers(page, pageSize, debouncedQ).then((res) => {
       if (!mounted) return
       setData(res)

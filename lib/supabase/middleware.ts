@@ -75,10 +75,9 @@ export async function updateSession(request: NextRequest) {
   }
 
   // Protect dashboard routes
+  // Dashboard is publicly viewable. If an admin is logged in and hits
+  // the dashboard path, redirect them to the admin area.
   if (path.startsWith('/dashboard')) {
-    if (!user) {
-      return NextResponse.redirect(new URL('/signin', request.url))
-    }
     if (userRole === 'admin') {
       return NextResponse.redirect(new URL('/admin', request.url))
     }

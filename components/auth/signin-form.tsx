@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -22,6 +22,17 @@ export function SignInForm() {
     rememberMe: false,
   })
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    try {
+      const pre = localStorage.getItem('prefillEmail')
+      if (pre) {
+        // intentionally do not auto-fill; leave for manual entry
+        localStorage.removeItem('prefillEmail')
+      }
+    } catch {}
+  }, [])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -34,11 +45,13 @@ export function SignInForm() {
       })
 
       if (error) {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: error.message,
-        })
+        // Common cause: email not confirmed or invalid credentials
+        const msg = error.message || String(error)
+        if (msg.toLowerCase().includes('invalid_grant') || msg.toLowerCase().includes('email') || msg.toLowerCase().includes('confirm')) {
+          toast({ variant: 'destructive', title: 'Sign in failed', description: 'Your email may not be confirmed. Check your inbox or use magic link.' })
+          return
+        }
+        toast({ variant: "destructive", title: "Error", description: msg })
         return
       }
 
@@ -56,6 +69,7 @@ export function SignInForm() {
 
       // If there's a pending booking, resume to confirm flow
       if (typeof window !== 'undefined' && localStorage.getItem('pendingBooking')) {
+        try { localStorage.removeItem('prefillEmail') } catch {}
         router.push('/confirm-booking')
         router.refresh()
         return
@@ -159,7 +173,7 @@ export function SignInForm() {
       <Button type="submit" className="w-full" disabled={loading} size="lg">
         {loading ? "Signing in..." : "Sign In"}
       </Button>
-    </form>
+      </form>
   )
 }
 

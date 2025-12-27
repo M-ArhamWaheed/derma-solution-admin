@@ -27,8 +27,16 @@ export function SignUpForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Trim and validate email
+    // Trim form fields to avoid accidental whitespace errors
+    const firstName = formData.firstName.trim()
+    const lastName = formData.lastName.trim()
     const email = formData.email.trim()
+    const password = formData.password.trim()
+
+    // Update visible form state with trimmed values
+    setFormData((s) => ({ ...s, firstName, lastName, email, password }))
+
+    // Trim and validate email
     const emailRegex = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
     if (!emailRegex.test(email)) {
       toast({
@@ -40,7 +48,7 @@ export function SignUpForm() {
     }
 
     // Password min 6 characters
-    if (formData.password.length < 6) {
+    if (password.length < 6) {
       toast({
         variant: "destructive",
         title: "Weak Password",
@@ -62,24 +70,33 @@ export function SignUpForm() {
 
     try {
       const supabase = createClient()
-      const { data, error } = await supabase.auth.signUp({
+      const payload = {
         email,
-        password: formData.password,
+        password,
         options: {
           emailRedirectTo: `${window.location.origin}/dashboard`,
           data: {
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            role: "customer",
+            role: 'customer',
+            first_name: firstName,
+            last_name: lastName,
           },
         },
-      })
+      }
+
+      // Debug: log exact payload being sent
+      console.debug('supabase signUp payload', payload)
+
+      const { data, error } = await supabase.auth.signUp(payload)
+
+      // Log full response for debugging
+      console.debug('supabase signUp response', { data, error })
 
       if (error) {
+        const errText = error?.message || JSON.stringify(error)
         toast({
           variant: "destructive",
           title: "Signup Failed",
-          description: error.message,
+          description: errText,
         })
         return
       }
@@ -90,8 +107,13 @@ export function SignUpForm() {
           description: "Account created! Check your email to confirm.",
         })
 
+        // If there was a pending booking, send user to sign in so they
+        // can authenticate before confirming the booking.
         if (typeof window !== 'undefined' && localStorage.getItem('pendingBooking')) {
-          router.push('/confirm-booking')
+          try {
+            localStorage.setItem('prefillEmail', email)
+          } catch {}
+          router.push('/signin')
           router.refresh()
           return
         }

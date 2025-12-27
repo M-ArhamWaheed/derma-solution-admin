@@ -1,9 +1,7 @@
 import { Suspense } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-import dynamic from "next/dynamic"
-
-const UsersClient = dynamic(() => import("@/components/admin/users-client").then(m => m.UsersClient), { ssr: false })
+import { UsersClient } from "@/components/admin/users-client"
 
 export default function AdminUsersPage() {
   return (
