@@ -20,17 +20,22 @@ const timeSlots = {
   Evening: ["5:00 pm", "5:15 pm", "5:30 pm", "5:45 pm", "6:00 pm", "6:15 pm", "6:30 pm", "6:45 pm"],
 };
 
-export default function ServiceDateSelector() {
+export default function ServiceDateSelector({ onChange }: { onChange?: (s: { date?: string | null; time?: string | null }) => void }) {
   const [state, dispatch] = useReducer(modalReducer, { showCalendar: false });
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTab, setSelectedTab] = useState<'Morning' | 'Afternoon' | 'Evening'>('Morning');
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
-  // Simulate selecting a date from the calendar
   const handleDateSelect = (date: string) => {
     setSelectedDate(date);
     dispatch({ type: "CLOSE_CALENDAR" });
+    if (onChange) onChange({ date, time: selectedTime });
   };
+
+  const handleTimeSelect = (time: string) => {
+    setSelectedTime(time);
+    if (onChange) onChange({ date: selectedDate, time });
+  }
 
   return (
     <>
@@ -63,7 +68,7 @@ export default function ServiceDateSelector() {
                 <button
                   key={slot}
                   className={`rounded-full border px-6 py-2 text-base font-medium transition-all ${selectedTime === slot ? "bg-[#333] text-white" : "bg-background hover:bg-[#222]"}`}
-                  onClick={() => setSelectedTime(slot)}
+                  onClick={() => handleTimeSelect(slot)}
                 >
                   {slot}
                 </button>

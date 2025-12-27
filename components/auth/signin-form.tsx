@@ -54,6 +54,13 @@ export function SignInForm() {
         description: "Signed in successfully!",
       })
 
+      // If there's a pending booking, resume to confirm flow
+      if (typeof window !== 'undefined' && localStorage.getItem('pendingBooking')) {
+        router.push('/confirm-booking')
+        router.refresh()
+        return
+      }
+
       // Redirect based on role
       if (profile?.role === 'admin') {
         router.push('/admin')

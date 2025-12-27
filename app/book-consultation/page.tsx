@@ -1,13 +1,41 @@
 import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, RefreshCcw, Package, ShoppingBag, Settings, ChevronRight } from "lucide-react";
+import { CalendarDays, RefreshCcw, ShoppingBag, Settings, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import { getOrdersByCustomer } from "@/lib/supabase/queries";
 
-export default function BookConsultationPage() {
-  // TODO: Pass user prop if available from context or session
+export default async function BookConsultationPage() {
+  const supabase = await createClient()
+  const { data: userData } = await supabase.auth.getUser()
+  const user = userData?.user || null
+
+  let upcoming: any = null
+  if (user) {
+    const orders = await getOrdersByCustomer(user.id)
+    if (orders && orders.length) {
+      const candidates = orders.filter((o: any) => o.status === 'pending' || o.status === 'confirmed')
+      candidates.sort((a: any, b: any) => {
+        const ad = new Date(`${a.booking_date}T${a.booking_time || '00:00:00'}`)
+        const bd = new Date(`${b.booking_date}T${b.booking_time || '00:00:00'}`)
+        return ad.getTime() - bd.getTime()
+      })
+      upcoming = candidates[0]
+    }
+  }
+
+  function formatDate(dateStr: string) {
+    try {
+      const d = new Date(dateStr)
+      return d.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })
+    } catch {
+      return dateStr
+    }
+  }
+
   return (
     <>
-      <Navbar user={null} />
+      <Navbar user={user} />
       <main className="container mx-auto py-8">
         {/* Account Greeting Section */}
         <section className="max-w-3xl mx-auto mb-10">
@@ -22,39 +50,36 @@ export default function BookConsultationPage() {
                 Upcoming
               </span>
             </div>
-            <h2 className="text-2xl font-bold mb-1">
-              Monday, 29th Dec 2025
-            </h2>
-            <div className="text-muted-foreground text-sm mb-2">BATH</div>
-            <div className="text-lg font-medium mb-1">
-              Anti-Wrinkle Treatment Free Consultation
-            </div>
-            <div className="text-muted-foreground text-sm mb-4">
-              Susanne P.
-            </div>
+            {upcoming ? (
+              <>
+                <h2 className="text-2xl font-bold mb-1">{formatDate(upcoming.booking_date)}</h2>
+                <div className="text-muted-foreground text-sm mb-2">{upcoming.service?.category?.name || ''}</div>
+                <div className="text-lg font-medium mb-1">{upcoming.service_title}</div>
+                <div className="text-muted-foreground text-sm mb-4">{upcoming.customer?.first_name} {upcoming.customer?.last_name}</div>
+              </>
+            ) : (
+              <>
+                <h2 className="text-2xl font-bold mb-1">No upcoming appointments</h2>
+                <div className="text-muted-foreground text-sm mb-2">You have no upcoming bookings.</div>
+              </>
+            )}
           </div>
           <div className="flex flex-col items-end gap-4 min-w-[180px] mt-4 md:mt-0">
-            <div className="text-base font-semibold text-right">
-              2:30 pm - 3:00 pm
-            </div>
-            <div className="flex gap-2 bottom-4">
-              <Button
-                variant="ghost"
-                className="border border-input bg-background hover:bg-muted"
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="outline"
-                className="flex items-center gap-2"
-              >
-                <RefreshCcw className="w-4 h-4 mr-1" /> Reschedule
-              </Button>
-            </div>
+            {upcoming ? (
+              <>
+                <div className="text-base font-semibold text-right">{new Date(`${upcoming.booking_date}T${upcoming.booking_time}`).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</div>
+                <div className="flex gap-2 bottom-4">
+                  <Button variant="ghost" className="border border-input bg-background hover:bg-muted">Cancel</Button>
+                  <Button variant="outline" className="flex items-center gap-2"><RefreshCcw className="w-4 h-4 mr-1" /> Reschedule</Button>
+                </div>
+              </>
+            ) : (
+              <div className="flex gap-2 bottom-4">
+                <Button variant="ghost" className="border border-input bg-background hover:bg-muted">Book now</Button>
+              </div>
+            )}
           </div>
         </section>
-        {/* Book Consultation page content will go here */}
-        <h1 className="text-2xl font-bold mb-4 hidden">Book Consultation</h1>
         {/* Manage Section */}
         <section className="max-w-3xl mx-auto mt-10">
           <h2 className="text-xl font-bold mb-4">Manage</h2>
@@ -67,22 +92,22 @@ export default function BookConsultationPage() {
               </div>
               <ChevronRight className="w-5 h-5 text-muted-foreground" />
             </Link>
-            <div className="flex items-center px-6 py-5 gap-4 hover:bg-white hover:text-black transition cursor-pointer">
+            <Link href="/order-history" className="flex items-center px-6 py-5 gap-4 hover:bg-white hover:text-black transition cursor-pointer">
               <span className="bg-muted p-2 rounded-full"><ShoppingBag className="w-6 h-6 text-primary" /></span>
               <div className="flex-1 min-w-0">
                 <div className="font-semibold text-lg ">My Order History</div>
                 <div className="text-muted-foreground text-sm">Manage recent orders and view previous purchases</div>
               </div>
               <ChevronRight className="w-5 h-5 text-muted-foreground" />
-            </div>
-            <div className="flex items-center px-6 py-5 gap-4 hover:bg-white hover:text-black transition cursor-pointer rounded-b-xl">
+            </Link>
+            <Link href="/profile-settings" className="flex items-center px-6 py-5 gap-4 hover:bg-white hover:text-black transition cursor-pointer rounded-b-xl">
               <span className="bg-muted p-2 rounded-full"><Settings className="w-6 h-6 text-primary" /></span>
               <div className="flex-1 min-w-0">
                 <div className="font-semibold text-lg ">Profile Settings</div>
                 <div className="text-muted-foreground text-sm">Manage your account information</div>
               </div>
               <ChevronRight className="w-5 h-5 text-muted-foreground" />
-            </div>
+            </Link>
           </div>
         </section>
       </main>

@@ -89,6 +89,13 @@ export function SignUpForm() {
           title: "Success",
           description: "Account created! Check your email to confirm.",
         })
+
+        if (typeof window !== 'undefined' && localStorage.getItem('pendingBooking')) {
+          router.push('/confirm-booking')
+          router.refresh()
+          return
+        }
+
         router.push("/dashboard")
         router.refresh()
       }
