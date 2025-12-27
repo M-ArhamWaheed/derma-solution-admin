@@ -146,7 +146,7 @@ export function Navbar({ user, action }: NavbarProps) {
             ))}
           </div>
 
-          {/* Right Section - User Menu & Theme */}
+          {/* Right Section - User Menu, Book Consultation & Theme */}
           <div className="flex items-center gap-2 md:gap-3">
             <ThemeToggle />
 
@@ -196,6 +196,13 @@ export function Navbar({ user, action }: NavbarProps) {
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
+
+            {/* Book Consultation Button - Desktop only */}
+            <Link href="/book-consultation" className="hidden lg:block">
+              <Button variant="primary" size="default">
+                Book Consultation
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

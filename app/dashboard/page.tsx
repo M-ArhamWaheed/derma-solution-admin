@@ -9,9 +9,9 @@ import { PopularServices } from "@/components/dashboard/popular-services"
 import { ServicesGridSection } from "@/components/dashboard/services-grid-section"
 import { ClinicVisionSection } from "@/components/dashboard/clinic-vision-section"
 import { WhyChooseUsSection } from "@/components/dashboard/why-choose-us-section"
-import { PromoSection } from "@/components/dashboard/promo-section"
 import { ReviewsSection } from "@/components/dashboard/reviews-section"
 import { Skeleton } from "@/components/ui/skeleton"
+import { ServicesGallery } from "@/components/dashboard/services-gallery"
 // import { getCategories } from "@/lib/supabase/queries"
 
 export default async function DashboardPage() {
@@ -76,7 +76,10 @@ export default async function DashboardPage() {
           <CategoryButtons categories={categories} />
         </Suspense>
 
-        <Suspense
+        {/* Services Gallery Section */}
+        <ServicesGallery />
+
+        {/* <Suspense
           fallback={
             <div className="bg-background py-16">
               <div className="container">
@@ -91,20 +94,18 @@ export default async function DashboardPage() {
           }
         >
           <PopularServices />
-        </Suspense>
+        </Suspense> */}
 
         {/* New: Clinic Vision Section */}
-        <ClinicVisionSection />
+        {/* <ClinicVisionSection /> */}
 
         {/* New: Modern Services Grid */}
-        <ServicesGridSection />
+        {/* <ServicesGridSection /> */}
 
         {/* New: Why Choose Us Section */}
-        <WhyChooseUsSection />
+        {/* <WhyChooseUsSection /> */}
 
-        <PromoSection />
-
-        <Suspense
+        {/* <Suspense
           fallback={
             <div className="bg-muted py-16">
               <div className="container">
@@ -119,10 +120,10 @@ export default async function DashboardPage() {
           }
         >
           <ReviewsSection />
-        </Suspense>
+        </Suspense> */}
       </main>
 
-      <Footer />
+      {/* <Footer /> */}
     </div>
   )
 }
