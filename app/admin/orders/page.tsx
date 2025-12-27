@@ -1,22 +1,24 @@
 import { Suspense } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-import { getOrders } from "@/lib/supabase/queries"
+import { getOrdersPaginated } from "@/lib/supabase/queries"
 import { OrdersTable } from "@/components/admin/orders-table"
 
-async function OrdersList() {
-  const orders = await getOrders()
-  return <OrdersTable orders={orders} />
+async function OrdersList({ page }: { page: number }) {
+  const { data: orders, count } = await getOrdersPaginated(page, 20)
+  return (
+    <OrdersTable orders={orders} currentPage={page} totalCount={count} pageSize={20} />
+  )
 }
 
-export default function OrdersPage() {
+export default async function OrdersPage({ searchParams }: { searchParams?: { page?: string } }) {
+  const page = parseInt(searchParams?.page || "1", 10) || 1
+
   return (
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-3xl font-bold font-heading mb-2">Orders</h1>
-        <p className="text-muted-foreground">
-          Manage customer orders and bookings
-        </p>
+        <p className="text-muted-foreground">Manage customer orders and bookings</p>
       </div>
 
       <Card>
@@ -33,7 +35,8 @@ export default function OrdersPage() {
               </div>
             }
           >
-            <OrdersList />
+            {/* Server component fetches the page and renders the client table */}
+            <OrdersList page={page} />
           </Suspense>
         </CardContent>
       </Card>

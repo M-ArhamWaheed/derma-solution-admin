@@ -4,15 +4,27 @@ import { CalendarDays, RefreshCcw, ShoppingBag, Settings, ChevronRight } from "l
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getOrdersByCustomer } from "@/lib/supabase/queries";
+import type { Profile } from "@/types";
 
 export default async function BookConsultationPage() {
   const supabase = await createClient()
   const { data: userData } = await supabase.auth.getUser()
-  const user = userData?.user || null
+  const authUser = userData?.user || null
+
+  // Fetch the profile row from the `profiles` table so we can pass a `Profile | null`
+  let user: Profile | null = null
+  if (authUser) {
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', authUser.id)
+      .single()
+    user = profileData || null
+  }
 
   let upcoming: any = null
-  if (user) {
-    const orders = await getOrdersByCustomer(user.id)
+  if (authUser) {
+    const orders = await getOrdersByCustomer(authUser.id)
     if (orders && orders.length) {
       const candidates = orders.filter((o: any) => o.status === 'pending' || o.status === 'confirmed')
       candidates.sort((a: any, b: any) => {

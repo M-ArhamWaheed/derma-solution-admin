@@ -17,6 +17,9 @@ import { format } from "date-fns"
 
 interface OrdersTableProps {
   orders: OrderWithDetails[]
+  currentPage?: number
+  totalCount?: number
+  pageSize?: number
 }
 
 function OrdersTableComponent({ orders }: OrdersTableProps) {
@@ -66,7 +69,16 @@ function OrdersTableComponent({ orders }: OrdersTableProps) {
                 {order.id.slice(0, 8)}
               </TableCell>
               <TableCell className="font-medium">
-                {order.customer.first_name} {order.customer.last_name}
+                <div>
+                  <div>
+                    {order.customer?.first_name || order.customer_name || 'Unknown'}{' '}
+                    {order.customer?.last_name || ''}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {order.customer?.email || order.customer_email || ''}
+                    {order.customer_phone ? ` • ${order.customer_phone}` : ''}
+                  </div>
+                </div>
               </TableCell>
               <TableCell>{order.service.name}</TableCell>
               <TableCell>
@@ -87,6 +99,20 @@ function OrdersTableComponent({ orders }: OrdersTableProps) {
           ))}
         </TableBody>
       </Table>
+      {/* Simple pagination controls (server rendered links) */}
+      {typeof currentPage !== 'undefined' && typeof totalCount !== 'undefined' && (
+        <div className="flex items-center justify-between p-4">
+          <div className="text-sm text-muted-foreground">Showing page {currentPage}</div>
+          <div className="flex items-center gap-2">
+            {currentPage > 1 && (
+              <a href={`?page=${currentPage - 1}`} className="btn">Previous</a>
+            )}
+            {currentPage * (pageSize || 20) < (totalCount || 0) && (
+              <a href={`?page=${currentPage + 1}`} className="btn">Next</a>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

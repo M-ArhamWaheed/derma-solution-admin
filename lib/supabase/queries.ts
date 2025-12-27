@@ -6,6 +6,21 @@ import type {
   ReviewWithDetails 
 } from '@/types'
 
+// Simple in-memory cache for short-term caching during server runtime.
+const _cache: Map<string, { expiresAt: number; value: any }> = new Map()
+function cacheGet(key: string) {
+  const entry = _cache.get(key)
+  if (!entry) return null
+  if (Date.now() > entry.expiresAt) {
+    _cache.delete(key)
+    return null
+  }
+  return entry.value
+}
+function cacheSet(key: string, value: any, ttlMs: number) {
+  _cache.set(key, { value, expiresAt: Date.now() + ttlMs })
+}
+
 // Category Queries
 export async function getCategories() {
   const supabase = await createClient()
@@ -120,6 +135,38 @@ export async function getOrders() {
   return data as OrderWithDetails[]
 }
 
+// Paginated orders with optional short-term cache. Returns { data, count }
+export async function getOrdersPaginated(page: number = 1, pageSize: number = 20, useCache: boolean = true) {
+  const supabase = await createClient()
+  const start = (page - 1) * pageSize
+  const end = start + pageSize - 1
+
+  const cacheKey = `orders:page=${page}:size=${pageSize}`
+  if (useCache) {
+    const cached = cacheGet(cacheKey)
+    if (cached) return cached
+  }
+
+  const { data, error, count } = await supabase
+    .from('orders')
+    .select(`
+      *,
+      service:services(
+        *,
+        category:categories(*)
+      ),
+      customer:profiles(*)
+    `, { count: 'exact' })
+    .order('created_at', { ascending: false })
+    .range(start, end)
+
+  if (error) throw error
+
+  const result = { data: data as OrderWithDetails[], count: count ?? 0 }
+  if (useCache) cacheSet(cacheKey, result, 30 * 1000) // 30s cache
+  return result
+}
+
 export async function getOrdersByCustomer(customerId: string) {
   const supabase = await createClient()
   
@@ -158,6 +205,70 @@ export async function getRecentOrders(limit: number = 10) {
   
   if (error) throw error
   return data as OrderWithDetails[]
+}
+
+// Users (profiles) - paginated
+export async function getUsersPaginated(page: number = 1, pageSize: number = 20, useCache: boolean = true, q: string | null = null) {
+  const supabase = await createClient()
+  const start = (page - 1) * pageSize
+  const end = start + pageSize - 1
+
+  const cacheKey = `users:page=${page}:size=${pageSize}:q=${q ?? ''}`
+  if (useCache) {
+    const cached = cacheGet(cacheKey)
+    if (cached) return cached
+  }
+
+  // Build base query
+  let query = supabase
+    .from('profiles')
+    .select('*', { count: 'exact' })
+    .order('created_at', { ascending: false })
+
+  // If a search term is provided, let the DB filter rows (case-insensitive)
+  if (q && q.trim().length > 0) {
+    const term = q.trim()
+    // Use ilike for case-insensitive matching across first_name, last_name, email
+    // Supabase .or expects comma-separated conditions
+    query = query.or(`first_name.ilike.%${term}%,last_name.ilike.%${term}%,email.ilike.%${term}%`)
+  }
+
+  const { data, error, count } = await query.range(start, end)
+
+  if (error) throw error
+
+  const result = { data, count: count ?? 0 }
+  if (useCache) cacheSet(cacheKey, result, 30 * 1000)
+  return result
+}
+
+// Services - paginated
+export async function getServicesPaginated(page: number = 1, pageSize: number = 20, useCache: boolean = true) {
+  const supabase = await createClient()
+  const start = (page - 1) * pageSize
+  const end = start + pageSize - 1
+
+  const cacheKey = `services:page=${page}:size=${pageSize}`
+  if (useCache) {
+    const cached = cacheGet(cacheKey)
+    if (cached) return cached
+  }
+
+  const { data, error, count } = await supabase
+    .from('services')
+    .select(`
+      *,
+      category:categories(*)
+    `, { count: 'exact' })
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
+    .range(start, end)
+
+  if (error) throw error
+
+  const result = { data: data as ServiceWithCategory[], count: count ?? 0 }
+  if (useCache) cacheSet(cacheKey, result, 30 * 1000)
+  return result
 }
 
 // Review Queries

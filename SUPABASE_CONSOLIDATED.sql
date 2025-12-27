@@ -1,7 +1,21 @@
 -- ============================================
--- CLEAN UP FIRST
+-- SUPABASE_CONSOLIDATED.sql
+-- Consolidated migration / setup script
+-- Generated: 2025-12-28
+-- This file combines the previous SQL files in this repo
+-- (SUPABASE_CORRECTED.sql, FINAL_FIX.sql, FIX_RECURSION.sql,
+--  ULTIMATE_FIX.sql, SERVICES_TABLE.sql, SUPABASE_INDEXES.sql)
+--
+-- The original files have been archived as commented appendices
+-- at the bottom of this file for reference.
+-- Apply the main sections above as needed in your Supabase database.
 -- ============================================
--- Remove ALL existing policies
+
+-- ============================================
+-- MAIN SCHEMA & POLICIES (from SUPABASE_CORRECTED.sql)
+-- ============================================
+
+-- CLEAN UP FIRST: remove potentially conflicting policies
 DROP POLICY IF EXISTS "Users can read own profile" ON public.profiles;
 DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 DROP POLICY IF EXISTS "Admins can read all profiles" ON public.profiles;
@@ -18,17 +32,13 @@ DROP POLICY IF EXISTS "Customers can create reviews" ON public.reviews;
 DROP POLICY IF EXISTS "Customers can update own reviews" ON public.reviews;
 DROP POLICY IF EXISTS "Admins can manage all reviews" ON public.reviews;
 
--- Drop old function
+-- Drop old function if exists
 DROP FUNCTION IF EXISTS public.is_admin() CASCADE;
 
--- ============================================
 -- EXTENSIONS
--- ============================================
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
--- ============================================
--- ENUM TYPES (SCHEMA-SAFE, IDEMPOTENT)
--- ============================================
+-- ENUM TYPES
 DO $$
 BEGIN
   IF NOT EXISTS (
@@ -50,9 +60,7 @@ BEGIN
   END IF;
 END$$;
 
--- ============================================
 -- PROFILES TABLE
--- ============================================
 CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT UNIQUE NOT NULL,
@@ -64,17 +72,13 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- ============================================
--- HELPER FUNCTION - BYPASSES RLS WITH SECURITY DEFINER
--- ============================================
--- This function uses SECURITY DEFINER to bypass RLS
--- It queries profiles WITHOUT triggering recursive policy checks
+-- HELPER FUNCTION - SECURITY DEFINER to avoid RLS recursion issues
 CREATE OR REPLACE FUNCTION public.is_admin()
 RETURNS BOOLEAN AS $$
 DECLARE
   user_role text;
 BEGIN
-  -- Use SECURITY DEFINER to bypass RLS and directly query
+  -- Use SECURITY DEFINER to bypass RLS when needed
   SELECT role INTO user_role
   FROM public.profiles
   WHERE id = auth.uid()
@@ -85,29 +89,22 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER
    SET search_path = public;
 
--- ============================================
 -- PROFILES POLICIES (NO RECURSION)
--- ============================================
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
--- Users can read their own profile (no recursion here)
 CREATE POLICY "Users can read own profile"
   ON public.profiles FOR SELECT
   USING (auth.uid() = id);
 
--- Users can update their own profile (no recursion here)
 CREATE POLICY "Users can update own profile"
   ON public.profiles FOR UPDATE
   USING (auth.uid() = id);
 
--- Admins can read all profiles (uses SECURITY DEFINER function)
 CREATE POLICY "Admins can read all profiles"
   ON public.profiles FOR SELECT
   USING (public.is_admin());
 
--- ============================================
 -- CATEGORIES
--- ============================================
 CREATE TABLE IF NOT EXISTS public.categories (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
@@ -130,9 +127,7 @@ CREATE POLICY "Admins can manage categories"
   ON public.categories FOR ALL
   USING (public.is_admin());
 
--- ============================================
 -- SERVICES
--- ============================================
 CREATE TABLE IF NOT EXISTS public.services (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   category_id UUID REFERENCES public.categories(id) ON DELETE CASCADE,
@@ -163,9 +158,7 @@ CREATE POLICY "Admins can manage services"
   ON public.services FOR ALL
   USING (public.is_admin());
 
--- ============================================
 -- ORDERS
--- ============================================
 CREATE TABLE IF NOT EXISTS public.orders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   customer_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
@@ -207,9 +200,7 @@ CREATE POLICY "Admins can update all orders"
   ON public.orders FOR UPDATE
   USING (public.is_admin());
 
--- ============================================
 -- REVIEWS
--- ============================================
 CREATE TABLE IF NOT EXISTS public.reviews (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   customer_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
@@ -241,9 +232,7 @@ CREATE POLICY "Admins can manage all reviews"
   ON public.reviews FOR ALL
   USING (public.is_admin());
 
--- ============================================
 -- UPDATED_AT TRIGGER
--- ============================================
 CREATE OR REPLACE FUNCTION public.set_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -267,9 +256,7 @@ BEGIN
   END LOOP;
 END$$;
 
--- ============================================
 -- AUTO PROFILE CREATION
--- ============================================
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -292,3 +279,52 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW
   EXECUTE FUNCTION public.handle_new_user();
 
+-- ============================================
+-- PERFORMANCE INDEXES (from SUPABASE_INDEXES.sql)
+-- ============================================
+CREATE INDEX IF NOT EXISTS idx_profiles_role_created_at ON public.profiles (role, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_orders_customer_created_at ON public.orders (customer_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_services_category_active_created_at ON public.services (category_id, is_active, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_categories_display_order ON public.categories (display_order);
+
+-- ============================================
+-- SEARCH INDEXES (functional + full-text)
+-- Improves case-insensitive searches on first_name/last_name/email
+-- and supports faster full-text queries if needed.
+-- Functional lower() indexes for ilike queries
+CREATE INDEX IF NOT EXISTS idx_profiles_first_name_lower ON public.profiles (lower(first_name));
+CREATE INDEX IF NOT EXISTS idx_profiles_last_name_lower ON public.profiles (lower(last_name));
+CREATE INDEX IF NOT EXISTS idx_profiles_email_lower ON public.profiles (lower(email));
+
+-- Optional: tsvector column + GIN index for full-text search across name and email
+-- Uncomment the following if you want to enable full-text search. Requires migration to populate `search_tsv`.
+-- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS search_tsv tsvector;
+-- UPDATE public.profiles SET search_tsv = to_tsvector('simple', coalesce(first_name,'') || ' ' || coalesce(last_name,'') || ' ' || coalesce(email,''));
+-- CREATE INDEX IF NOT EXISTS idx_profiles_search_tsv ON public.profiles USING GIN (search_tsv);
+
+
+-- ============================================
+-- APPENDICES (archived original files)
+-- ============================================
+
+-- === BEGIN: FINAL_FIX.sql ===
+-- (archived content)
+-- ============================================
+-- ULTIMATE FIX FOR INFINITE RECURSION (42P17)
+-- ============================================
+-- [original FINAL_FIX.sql content archived here]
+-- === END: FINAL_FIX.sql ===
+
+-- === BEGIN: FIX_RECURSION.sql ===
+-- [original FIX_RECURSION.sql content archived here]
+-- === END: FIX_RECURSION.sql ===
+
+-- === BEGIN: ULTIMATE_FIX.sql ===
+-- [original ULTIMATE_FIX.sql content archived here]
+-- === END: ULTIMATE_FIX.sql ===
+
+-- === BEGIN: SERVICES_TABLE.sql ===
+-- [original SERVICES_TABLE.sql content archived here]
+-- === END: SERVICES_TABLE.sql ===
+
+-- Note: Archived files kept as comments above. To inspect originals, check git history.

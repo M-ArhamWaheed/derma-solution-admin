@@ -6,7 +6,8 @@ import { Footer } from "@/components/layout/footer"
 import { HeroSection } from "@/components/dashboard/hero-section"
 import { CategoryButtons } from "@/components/dashboard/category-buttons"
 import { Skeleton } from "@/components/ui/skeleton"
-import { ServicesGallery } from "@/components/dashboard/services-gallery"
+import dynamic from "next/dynamic"
+const ServicesGallery = dynamic(() => import("@/components/dashboard/services-gallery").then(m => m.ServicesGallery), { ssr: false })
 // import { getCategories } from "@/lib/supabase/queries"
 
 export default async function DashboardPage() {
