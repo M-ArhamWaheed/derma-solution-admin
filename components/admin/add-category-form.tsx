@@ -54,7 +54,7 @@ export function AddCategoryForm({ onCategoryAdded, initialValues, onCancel }: { 
       return candidate
     }
 
-    let safeSlugBase = slugify(slug)
+    const safeSlugBase = slugify(slug)
     let safeSlug = safeSlugBase
     try {
       const allRes = await fetch('/api/categories')
