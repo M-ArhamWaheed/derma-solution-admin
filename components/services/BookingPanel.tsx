@@ -22,9 +22,32 @@ export default function BookingPanel({ service }: { service: any }) {
   useEffect(() => {
     // ensure selectedPackage is valid when servicePackages change
     if (!servicePackages.includes(selectedPackage)) {
-      setSelectedPackage(servicePackages[0] || "1 session")
+      const t = setTimeout(() => setSelectedPackage(servicePackages[0] || "1 session"), 0)
+      return () => clearTimeout(t)
     }
+    return
   }, [servicePackages, selectedPackage])
+
+  // restore selections from pendingBooking if user is returning from confirm page
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('pendingBooking')
+      if (!raw) return
+      const pending = JSON.parse(raw)
+      if (pending?.service_id === service?.id) {
+        const timers: number[] = []
+        if (pending.package && servicePackages.includes(pending.package)) {
+          timers.push(window.setTimeout(() => setSelectedPackage(pending.package), 0))
+        }
+        if (pending.date) timers.push(window.setTimeout(() => setSelectedDate(pending.date), 0))
+        if (pending.time) timers.push(window.setTimeout(() => setSelectedTime(pending.time), 0))
+        return () => timers.forEach(t => clearTimeout(t))
+      }
+    } catch {
+      // ignore parse errors
+    }
+    return
+  }, [service?.id, servicePackages])
 
   const basePrice = Number(service?.base_price ?? 0)
   const getSessionCount = (label: string) => {
@@ -77,11 +100,11 @@ export default function BookingPanel({ service }: { service: any }) {
     <div>
       <section className="max-w-2xl mx-auto mb-8">
         <div className="bg-muted rounded-xl shadow p-4">
-          <div className="flex items-center justify-between ">
+          <div className="flex items-center justify-between mb-4">
             <div className="text-xl font-semibold">Select package</div>
           </div>
-          <div className="text-muted-foreground text-base mb-4">Full Body (excluding face)</div>
-          <div className="flex flex-col gap-2">
+          {/* <div className="text-muted-foreground text-base mb-4">Full Body (excluding face)</div> */}
+          <div className="flex flex-col gap-4">
             {servicePackages.map((p) => {
               const count = getSessionCount(p)
               const discount = getDiscount(p)
@@ -92,7 +115,7 @@ export default function BookingPanel({ service }: { service: any }) {
                 <div
                   key={p}
                   onClick={() => setSelectedPackage(p)}
-                  className={`border rounded-xl p-4 flex items-center justify-between hover:shadow-md hover:bg-white hover:text-black transition cursor-pointer ${selectedPackage === p ? "ring-2 ring-offset-2 ring-slate-400" : ""}`}
+                  className={`border rounded-xl px-4 py-2 flex items-center justify-between hover:shadow-md hover:bg-white hover:text-black transition cursor-pointer ${selectedPackage === p ? "ring-2 ring-offset-2 ring-slate-400" : ""}`}
                 >
                   <div>
                     <div className="text-lg font-semibold">{p}</div>

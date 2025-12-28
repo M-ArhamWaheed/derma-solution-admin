@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import ServiceDateSelector from "@/components/services/ServiceDateSelector";
 import BookingPanel from "@/components/services/BookingPanel";
 import { createClient } from "@/lib/supabase/server";
@@ -22,13 +23,19 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
   return (
     <>
       <Navbar user={null} />
-      <main className="container mx-auto py-8">
+      <main className="container mx-auto py-6">
+        
         {/* Book Consultation Heading Section */}
-        <section className="max-w-3xl mx-auto mb-8">
+        <section className="max-w-3xl mx-auto mb-6">
+          <div className="mb-2">
+          <Link href="/dashboard">
+            <Button variant="ghost">← Back to Dashboard</Button>
+          </Link>
+        </div>
           <h1 className="text-4xl font-bold tracking-tight">Book consultation</h1>
         </section>
         {/* Service Card Section */}
-        <section className="max-w-3xl mx-auto mb-8">
+        <section className="max-w-3xl mx-auto mb-6">
           <div className="bg-muted rounded-xl shadow p-6">
             <div className="text-2xl font-semibold mb-6">Service</div>
             <div className="flex items-center gap-4">

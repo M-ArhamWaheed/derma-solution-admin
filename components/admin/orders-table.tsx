@@ -56,6 +56,7 @@ function OrdersTableComponent({ orders, currentPage, totalCount, pageSize }: Ord
             <TableHead>Order ID</TableHead>
             <TableHead>Customer</TableHead>
             <TableHead>Service</TableHead>
+            <TableHead>Sessions</TableHead>
             <TableHead>Address</TableHead>
             <TableHead>Booking Date</TableHead>
             <TableHead>Amount</TableHead>
@@ -82,6 +83,7 @@ function OrdersTableComponent({ orders, currentPage, totalCount, pageSize }: Ord
                 </div>
               </TableCell>
               <TableCell>{order.service.name}</TableCell>
+              <TableCell className="font-medium">{order.session_count} {order.session_count === 1 ? 'session' : 'sessions'}</TableCell>
               <TableCell className="text-sm text-muted-foreground">{order.address || '-'}</TableCell>
               <TableCell>
                 {format(new Date(order.booking_date), "MMM dd, yyyy")}

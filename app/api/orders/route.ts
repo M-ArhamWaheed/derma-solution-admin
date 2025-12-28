@@ -22,10 +22,20 @@ export async function POST(req: NextRequest) {
 
     // fetch service base price
     const { data: service } = await supabase.from('services').select('base_price').eq('id', serviceId).single()
-    const unitPrice = body.unit_price ?? service?.base_price ?? 0
 
-    const discountPercent = body.discount_percent ?? 0
-    const totalAmount = body.total_amount ?? (Number(unitPrice) * sessionCount * (1 - Number(discountPercent) / 100))
+    // normalize numeric fields from body
+    const suppliedUnitPrice = body.unit_price !== undefined ? Number(body.unit_price) : undefined
+    const suppliedDiscountPercent = body.discount_percent !== undefined ? Number(body.discount_percent) : 0
+
+    // compute unit price: prefer supplied unit_price, otherwise derive from service base price and discount
+    const basePriceNum = Number(service?.base_price ?? 0)
+    const unitPrice = suppliedUnitPrice !== undefined ? suppliedUnitPrice : Math.round((basePriceNum * (1 - suppliedDiscountPercent / 100)) * 100) / 100
+
+    // compute total amount: prefer supplied total_amount, otherwise unitPrice * sessionCount
+    const totalAmount = body.total_amount !== undefined ? Number(body.total_amount) : Number(unitPrice) * sessionCount
+
+    // final discount percent (integer)
+    const discountPercent = Math.round(suppliedDiscountPercent || 0)
 
     const bookingDateRaw = body.date || body.booking_date
     const bookingTimeRaw = body.time || body.booking_time

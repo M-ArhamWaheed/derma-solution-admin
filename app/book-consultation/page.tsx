@@ -49,6 +49,11 @@ export default async function BookConsultationPage() {
     <>
       <Navbar user={user} />
       <main className="container mx-auto py-8">
+        <div className="mb-4">
+          <Link href="/dashboard">
+            <Button variant="ghost">← Back to Dashboard</Button>
+          </Link>
+        </div>
         {/* Account Greeting Section */}
         <section className="max-w-3xl mx-auto mb-10">
           <div className="mb-2 text-muted-foreground text-base font-normal">Good evening</div>
