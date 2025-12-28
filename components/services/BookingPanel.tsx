@@ -7,15 +7,44 @@ import { useRouter } from "next/navigation"
 
 export default function BookingPanel({ service }: { service: any }) {
   const router = useRouter()
-  const [selectedPackage, setSelectedPackage] = useState<string>("1 session")
+  const defaultPackages = ["1 session", "3 sessions", "6 sessions", "10 sessions"]
+  const servicePackages: string[] = Array.isArray(service?.session_options)
+    ? service.session_options
+    : service?.session_options
+    ? JSON.parse(String(service.session_options))
+    : defaultPackages
+  const [selectedPackage, setSelectedPackage] = useState<string>(servicePackages[0] || "1 session")
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
   // receive selection updates from ServiceDateSelector
   useEffect(() => {
-    // no-op here; ServiceDateSelector will control date/time via callbacks
-  }, [])
+    // ensure selectedPackage is valid when servicePackages change
+    if (!servicePackages.includes(selectedPackage)) {
+      setSelectedPackage(servicePackages[0] || "1 session")
+    }
+  }, [servicePackages, selectedPackage])
+
+  const basePrice = Number(service?.base_price ?? 0)
+  const getSessionCount = (label: string) => {
+    const m = String(label).match(/(\d+)/)
+    return m ? parseInt(m[0], 10) : 1
+  }
+  const getDiscount = (label: string) => {
+    const n = getSessionCount(label)
+    switch (n) {
+      case 3:
+        return 0.25
+      case 6:
+        return 0.35
+      case 10:
+        return 0.45
+      default:
+        return 0
+    }
+  }
+  const formatPrice = (v: number) => `£${v.toFixed(2)}`
 
   const handleBook = async () => {
     // save pending booking to localStorage and redirect to signup if not logged in
@@ -53,21 +82,32 @@ export default function BookingPanel({ service }: { service: any }) {
           </div>
           <div className="text-muted-foreground text-base mb-4">Full Body (excluding face)</div>
           <div className="flex flex-col gap-2">
-            {["1 session", "3 sessions", "6 sessions", "10 sessions"].map((p) => (
-              <div
-                key={p}
-                onClick={() => setSelectedPackage(p)}
-                className={`border rounded-xl p-4 flex items-center justify-between hover:shadow-md hover:bg-white hover:text-black transition cursor-pointer ${selectedPackage === p ? "ring-2 ring-offset-2 ring-slate-400" : ""}`}
-              >
-                <div>
-                  <div className="text-lg font-semibold">{p}</div>
+            {servicePackages.map((p) => {
+              const count = getSessionCount(p)
+              const discount = getDiscount(p)
+              const perSession = basePrice * (1 - discount)
+              const total = perSession * count
+              const totalSave = basePrice * count - total
+              return (
+                <div
+                  key={p}
+                  onClick={() => setSelectedPackage(p)}
+                  className={`border rounded-xl p-4 flex items-center justify-between hover:shadow-md hover:bg-white hover:text-black transition cursor-pointer ${selectedPackage === p ? "ring-2 ring-offset-2 ring-slate-400" : ""}`}
+                >
+                  <div>
+                    <div className="text-lg font-semibold">{p}</div>
+                    <div className="text-sm text-muted-foreground">{count} × {formatPrice(perSession)} per session</div>
+                    {discount > 0 && (
+                      <div className="text-xs text-green-700 mt-1">Save {Math.round(discount * 100)}% — you save {formatPrice(totalSave)}</div>
+                    )}
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold">{formatPrice(perSession)}</div>
+                    <div className="text-muted-foreground text-xs">per session</div>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-lg font-bold">£{p.startsWith("1")?"249.95":p.startsWith("3")?"174.95":p.startsWith("6")?"139.95":"119.95"}</div>
-                  <div className="text-muted-foreground text-xs">per session</div>
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </section>

@@ -58,6 +58,7 @@ export interface Order {
   customer_name: string
   customer_email: string
   customer_phone?: string
+  address?: string
   session_count: number
   unit_price: number
   discount_percent?: number

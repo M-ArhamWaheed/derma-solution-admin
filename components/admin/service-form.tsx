@@ -20,6 +20,14 @@ export function ServiceForm({ onServiceSaved, initialValues, categories, onCance
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const [isPending, startTransition] = useTransition()
+  const defaultSessionOptions = ["1 session", "3 sessions", "6 sessions", "10 sessions"]
+  const [sessionOptions, setSessionOptions] = useState<string[]>(
+    Array.isArray(initialValues?.session_options)
+      ? (initialValues?.session_options as string[])
+      : initialValues?.session_options
+      ? JSON.parse(String(initialValues?.session_options))
+      : []
+  )
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -64,6 +72,7 @@ export function ServiceForm({ onServiceSaved, initialValues, categories, onCance
               duration_minutes: duration ? Number(duration) : null,
               is_popular: isPopular,
               is_active: isActive,
+              session_options: sessionOptions,
               thumbnail: finalThumbnail,
             }),
           })
@@ -80,6 +89,7 @@ export function ServiceForm({ onServiceSaved, initialValues, categories, onCance
               duration_minutes: duration ? Number(duration) : null,
               is_popular: isPopular,
               is_active: isActive,
+              session_options: sessionOptions,
               thumbnail: finalThumbnail,
             }),
           })
@@ -99,6 +109,7 @@ export function ServiceForm({ onServiceSaved, initialValues, categories, onCance
         setIsActive(true)
         setThumbnail("")
         setImageFile(null)
+        setSessionOptions([])
         onServiceSaved?.()
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : "Unknown error"
@@ -142,6 +153,28 @@ export function ServiceForm({ onServiceSaved, initialValues, categories, onCance
       <div>
         <label className="block mb-1 font-medium text-foreground">Duration (minutes)</label>
         <Input type="number" value={duration} onChange={e => setDuration(e.target.value)} min={0} />
+      </div>
+      <div>
+        <label className="block mb-1 font-medium text-foreground">Session options (enable for this service)</label>
+        <div className="flex flex-wrap gap-3">
+          {defaultSessionOptions.map((opt) => {
+            const checked = sessionOptions.includes(opt)
+            return (
+              <label key={opt} className="inline-flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={(e) => {
+                    if (e.target.checked) setSessionOptions((s) => [...s, opt])
+                    else setSessionOptions((s) => s.filter((x) => x !== opt))
+                  }}
+                  className="h-4 w-4 rounded border-input"
+                />
+                <span className="text-foreground">{opt}</span>
+              </label>
+            )
+          })}
+        </div>
       </div>
       <div>
         <label className="block mb-1 font-medium text-foreground">Description</label>

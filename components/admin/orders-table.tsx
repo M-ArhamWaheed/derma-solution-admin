@@ -43,7 +43,7 @@ function OrdersTableComponent({ orders, currentPage, totalCount, pageSize }: Ord
   if (orders.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
-        No orders yet
+        No Bookings yet
       </div>
     )
   }
@@ -56,6 +56,7 @@ function OrdersTableComponent({ orders, currentPage, totalCount, pageSize }: Ord
             <TableHead>Order ID</TableHead>
             <TableHead>Customer</TableHead>
             <TableHead>Service</TableHead>
+            <TableHead>Address</TableHead>
             <TableHead>Booking Date</TableHead>
             <TableHead>Amount</TableHead>
             <TableHead>Status</TableHead>
@@ -81,6 +82,7 @@ function OrdersTableComponent({ orders, currentPage, totalCount, pageSize }: Ord
                 </div>
               </TableCell>
               <TableCell>{order.service.name}</TableCell>
+              <TableCell className="text-sm text-muted-foreground">{order.address || '-'}</TableCell>
               <TableCell>
                 {format(new Date(order.booking_date), "MMM dd, yyyy")}
               </TableCell>

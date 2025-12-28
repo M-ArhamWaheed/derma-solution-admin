@@ -38,7 +38,7 @@ function RecentOrdersTableComponent({ orders }: RecentOrdersTableProps) {
   if (orders.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
-        No orders yet
+        No Bookings yet
       </div>
     )
   }

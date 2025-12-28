@@ -34,10 +34,9 @@ interface NavbarProps {
 }
 
 const navLinks = [
-  { href: "/dashboard", label: "Home" },
-  { href: "/treatments", label: "Services" },
-  { href: "/orders", label: "Orders" },
-  { href: "/about", label: "About Us" },
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/my-bookings", label: "My Bookings" },
+
 ]
 
 export function Navbar({ user, action }: NavbarProps) {

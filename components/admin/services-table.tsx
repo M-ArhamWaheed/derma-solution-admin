@@ -22,7 +22,7 @@ function ServicesTableComponent({ services }: ServicesTableProps) {
   if (services.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
-        No services yet
+        No Treatmens yet
       </div>
     )
   }

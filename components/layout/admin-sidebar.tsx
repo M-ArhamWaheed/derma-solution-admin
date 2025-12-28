@@ -28,12 +28,12 @@ const sidebarLinks = [
     icon: FolderTree,
   },
   {
-    title: "Services",
+    title: "Treatments",
     href: "/admin/services",
     icon: Sparkles,
   },
   {
-    title: "Orders",
+    title: "Bookings",
     href: "/admin/orders",
     icon: ShoppingCart,
   },

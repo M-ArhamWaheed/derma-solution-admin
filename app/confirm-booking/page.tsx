@@ -41,7 +41,8 @@ export default function ConfirmBookingPage() {
         package: booking.package,
         date: booking.date,
         time: booking.time,
-        notes: address,
+          address: address,
+          notes: null,
       }
 
       const res = await fetch('/api/orders', {

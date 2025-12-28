@@ -82,6 +82,7 @@ export async function POST(req: NextRequest) {
       customer_name: profile ? `${profile.first_name} ${profile.last_name}` : '',
       customer_email: profile?.email || user.email || '',
       customer_phone: body.customer_phone || null,
+      address: body.address || null,
       session_count: sessionCount,
       unit_price: unitPrice,
       discount_percent: discountPercent,

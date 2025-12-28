@@ -157,6 +157,7 @@ service_title TEXT NOT NULL,
 customer_name TEXT NOT NULL,
 customer_email TEXT NOT NULL,
 customer_phone TEXT,
+	address TEXT,
 
 session_count INTEGER NOT NULL DEFAULT 1,
 unit_price NUMERIC(10,2) NOT NULL,
