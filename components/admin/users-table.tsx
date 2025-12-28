@@ -36,6 +36,9 @@ function UsersTableComponent({ users, currentPage, totalCount, pageSize }: Users
           <TableRow>
             <TableHead>Name</TableHead>
             <TableHead>Email</TableHead>
+            <TableHead>Phone</TableHead>
+            <TableHead>Gender</TableHead>
+            <TableHead>Address</TableHead>
             <TableHead>Role</TableHead>
             <TableHead>Joined</TableHead>
             <TableHead className="text-right">Actions</TableHead>
@@ -60,6 +63,9 @@ function UsersTableComponent({ users, currentPage, totalCount, pageSize }: Users
                 </div>
               </TableCell>
               <TableCell>{user.email}</TableCell>
+              <TableCell>{user.phone || user.phone_number || '—'}</TableCell>
+              <TableCell>{user.gender || '—'}</TableCell>
+              <TableCell className="max-w-xs truncate">{user.address || '—'}</TableCell>
               <TableCell>
                 <Badge variant={user.role === 'admin' ? 'secondary' : 'default'}>
                   {user.role}

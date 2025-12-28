@@ -10,6 +10,7 @@ import {
   Sparkles,
   ShoppingCart,
   Mail,
+  Users,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react"
@@ -37,10 +38,15 @@ const sidebarLinks = [
     href: "/admin/orders",
     icon: ShoppingCart,
   },
+  // {
+  //   title: "Emails",
+  //   href: "/admin/emails",
+  //   icon: Mail,
+  // },
   {
-    title: "Emails",
-    href: "/admin/emails",
-    icon: Mail,
+    title: "Users",
+    href: "/admin/users",
+    icon: Users,
   },
 ]
 

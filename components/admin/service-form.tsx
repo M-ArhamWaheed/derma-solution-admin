@@ -10,6 +10,7 @@ import type { Service, Category } from "@/types/database"
 export function ServiceForm({ onServiceSaved, initialValues, categories, onCancel }: { onServiceSaved?: () => void, initialValues?: Partial<Service>, categories: Category[], onCancel?: () => void }) {
   const [name, setName] = useState(initialValues?.name || "")
   const [slug, setSlug] = useState(initialValues?.slug?.trim() || "")
+  const [slugEdited, setSlugEdited] = useState<boolean>(Boolean(initialValues?.slug))
   const [description, setDescription] = useState(initialValues?.description || "")
   const [categoryId, setCategoryId] = useState(initialValues?.category_id || "")
   const [basePrice, setBasePrice] = useState(initialValues?.base_price || "")
@@ -21,12 +22,30 @@ export function ServiceForm({ onServiceSaved, initialValues, categories, onCance
   const [uploading, setUploading] = useState(false)
   const [isPending, startTransition] = useTransition()
   const defaultSessionOptions = ["1 session", "3 sessions", "6 sessions", "10 sessions"]
+  const defaultTimeOptions = ["morning", "afternoon", "evening"]
   const [sessionOptions, setSessionOptions] = useState<string[]>(
     Array.isArray(initialValues?.session_options)
       ? (initialValues?.session_options as string[])
       : initialValues?.session_options
-      ? JSON.parse(String(initialValues?.session_options))
+      ? (function parseSession(v){
+          try {
+            const parsed = JSON.parse(String(v))
+            // support object shape { options: [], times_of_day: [] }
+            if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return Array.isArray(parsed.options) ? parsed.options : []
+            return Array.isArray(parsed) ? parsed : []
+          } catch { return [] }
+        })(initialValues.session_options)
       : []
+  )
+  const [timeOptions, setTimeOptions] = useState<string[]>(
+    (function initTimes(){
+      if (!initialValues?.session_options) return []
+      try {
+        const parsed = JSON.parse(String(initialValues.session_options))
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return Array.isArray(parsed.times_of_day) ? parsed.times_of_day : []
+      } catch {}
+      return []
+    })()
   )
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -35,7 +54,41 @@ export function ServiceForm({ onServiceSaved, initialValues, categories, onCance
       toast({ title: "All required fields must be filled", variant: "destructive" })
       return
     }
-    const safeSlug = slug.trim().replace(/\s+/g, '-');
+    const safeSlugBase = slug.trim().replace(/\s+/g, '-').toLowerCase();
+    // ensure slug is unique
+    const ensureUniqueSlug = (base: string, existing: Set<string>, excludeId?: string | null) => {
+      if (!existing.has(base)) return base
+      let i = 1
+      let candidate = `${base}-${i}`
+      while (existing.has(candidate)) {
+        i += 1
+        candidate = `${base}-${i}`
+      }
+      return candidate
+    }
+    let safeSlug = safeSlugBase
+    try {
+      const allRes = await fetch('/api/services')
+      if (allRes.ok) {
+        const all = await allRes.json()
+        const existing = new Set<string>()
+        all.forEach((s: any) => {
+          if (!s || !s.slug) return
+          // exclude current service when editing
+          if (initialValues?.id && s.id === initialValues.id) return
+          existing.add(String(s.slug).toLowerCase())
+        })
+        if (existing.has(safeSlugBase)) {
+          const unique = ensureUniqueSlug(safeSlugBase, existing, initialValues?.id)
+          safeSlug = unique
+          // update slug field so admin sees it
+          setSlug(unique)
+          toast({ title: `Slug already in use, changed to ${unique}` })
+        }
+      }
+    } catch (err) {
+      // ignore uniqueness check failures and proceed with provided slug
+    }
     let finalThumbnail = thumbnail
     if (imageFile) {
       setUploading(true)
@@ -65,14 +118,21 @@ export function ServiceForm({ onServiceSaved, initialValues, categories, onCance
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               name,
-              slug,
+              slug: safeSlug,
               description,
               category_id: categoryId,
               base_price: Number(basePrice),
               duration_minutes: duration ? Number(duration) : null,
               is_popular: isPopular,
               is_active: isActive,
-              session_options: sessionOptions,
+              session_options: (function buildSessionPayload(){
+                // If admin selected any time-of-day options, store as object to keep metadata
+                if (timeOptions && timeOptions.length > 0) {
+                  return JSON.stringify({ options: sessionOptions, times_of_day: timeOptions })
+                }
+                // otherwise keep simple array
+                return sessionOptions
+              })(),
               thumbnail: finalThumbnail,
             }),
           })
@@ -82,14 +142,19 @@ export function ServiceForm({ onServiceSaved, initialValues, categories, onCance
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               name,
-              slug,
+              slug: safeSlug,
               description,
               category_id: categoryId,
               base_price: Number(basePrice),
               duration_minutes: duration ? Number(duration) : null,
               is_popular: isPopular,
               is_active: isActive,
-              session_options: sessionOptions,
+              session_options: (function buildSessionPayload(){
+                if (timeOptions && timeOptions.length > 0) {
+                  return JSON.stringify({ options: sessionOptions, times_of_day: timeOptions })
+                }
+                return sessionOptions
+              })(),
               thumbnail: finalThumbnail,
             }),
           })
@@ -98,7 +163,7 @@ export function ServiceForm({ onServiceSaved, initialValues, categories, onCance
           const err = await res.json()
           throw new Error(err.error || "Unknown error")
         }
-        toast({ title: initialValues?.id ? "Service updated!" : "Service created!" })
+        toast({ title: initialValues?.id ? "Treatment updated!" : "Treatment created!" })
         setName("")
         setSlug("")
         setDescription("")
@@ -110,27 +175,54 @@ export function ServiceForm({ onServiceSaved, initialValues, categories, onCance
         setThumbnail("")
         setImageFile(null)
         setSessionOptions([])
+        setTimeOptions([])
         onServiceSaved?.()
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : "Unknown error"
-        toast({ title: `Error ${initialValues?.id ? "updating" : "creating"} service`, description: errorMessage, variant: "destructive" })
+        toast({ title: `Error ${initialValues?.id ? "updating" : "creating"} Treatment`, description: errorMessage, variant: "destructive" })
       }
     })
   }
 
+  const slugify = (v: string) =>
+    v
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "")
+
   return (
     <div className={`rounded-lg border p-6 ${initialValues?.id ? 'border-primary bg-primary/5' : 'border-border bg-card'}`}>
       <h3 className="text-lg font-semibold mb-4 text-foreground">
-        {initialValues?.id ? '✏️ Edit Service' : '➕ Add New Service'}
+        {initialValues?.id ? '✏️ Edit Treatment' : '➕ Add New Treatment'}
       </h3>
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <div>
         <label className="block mb-1 font-medium text-foreground">Name</label>
-        <Input value={name} onChange={e => setName(e.target.value)} placeholder="Service name" required />
+        <Input
+          value={name}
+          onChange={e => {
+            const v = e.target.value
+            setName(v)
+            if (!slugEdited) setSlug(slugify(v))
+          }}
+          placeholder="Treatment name"
+          required
+        />
       </div>
       <div>
         <label className="block mb-1 font-medium text-foreground">Slug</label>
-        <Input value={slug} onChange={e => setSlug(e.target.value)} placeholder="service-slug" required />
+        <Input
+          value={slug}
+          onChange={e => {
+            setSlug(e.target.value)
+            setSlugEdited(true)
+          }}
+          placeholder="treatment-slug"
+          required
+        />
       </div>
       <div>
         <label className="block mb-1 font-medium text-foreground">Category</label>
@@ -155,7 +247,7 @@ export function ServiceForm({ onServiceSaved, initialValues, categories, onCance
         <Input type="number" value={duration} onChange={e => setDuration(e.target.value)} min={0} />
       </div>
       <div>
-        <label className="block mb-1 font-medium text-foreground">Session options (enable for this service)</label>
+        <label className="block mb-1 font-medium text-foreground">Session options (enable for this treatment)</label>
         <div className="flex flex-wrap gap-3">
           {defaultSessionOptions.map((opt) => {
             const checked = sessionOptions.includes(opt)
@@ -171,6 +263,28 @@ export function ServiceForm({ onServiceSaved, initialValues, categories, onCance
                   className="h-4 w-4 rounded border-input"
                 />
                 <span className="text-foreground">{opt}</span>
+              </label>
+            )
+          })}
+        </div>
+      </div>
+      <div>
+        <label className="block mb-1 font-medium text-foreground">Available times of day</label>
+        <div className="flex flex-wrap gap-3">
+          {defaultTimeOptions.map((t) => {
+            const checked = timeOptions.includes(t)
+            return (
+              <label key={t} className="inline-flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={(e) => {
+                    if (e.target.checked) setTimeOptions((s) => [...s, t])
+                    else setTimeOptions((s) => s.filter((x) => x !== t))
+                  }}
+                  className="h-4 w-4 rounded border-input"
+                />
+                <span className="text-foreground">{t.charAt(0).toUpperCase() + t.slice(1)}</span>
               </label>
             )
           })}
@@ -203,7 +317,7 @@ export function ServiceForm({ onServiceSaved, initialValues, categories, onCance
       </div>
       <div className="col-span-full flex gap-3">
         <Button type="submit" disabled={isPending || uploading} size="lg" className="flex-1">
-          {initialValues?.id ? "Update Service" : "Add Service"}
+          {initialValues?.id ? "Update Treatment" : "Add Treatment"}
         </Button>
         {initialValues?.id && onCancel && (
           <Button type="button" variant="outline" size="lg" onClick={onCancel}>

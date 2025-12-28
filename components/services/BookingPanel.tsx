@@ -8,11 +8,23 @@ import { useRouter } from "next/navigation"
 export default function BookingPanel({ service }: { service: any }) {
   const router = useRouter()
   const defaultPackages = ["1 session", "3 sessions", "6 sessions", "10 sessions"]
-  const servicePackages: string[] = Array.isArray(service?.session_options)
-    ? service.session_options
-    : service?.session_options
-    ? JSON.parse(String(service.session_options))
-    : defaultPackages
+  const parseServicePackages = (raw: any) : string[] => {
+    if (!raw) return defaultPackages
+    if (Array.isArray(raw)) return raw
+    try {
+      const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw
+      if (Array.isArray(parsed)) return parsed
+      if (parsed && typeof parsed === 'object') {
+        if (Array.isArray(parsed.options)) return parsed.options
+        // some older shapes might store under 'session_options'
+        if (Array.isArray(parsed.session_options)) return parsed.session_options
+      }
+    } catch {
+      // fallthrough
+    }
+    return defaultPackages
+  }
+  const servicePackages: string[] = parseServicePackages(service?.session_options)
   const [selectedPackage, setSelectedPackage] = useState<string>(servicePackages[0] || "1 session")
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
@@ -96,6 +108,24 @@ export default function BookingPanel({ service }: { service: any }) {
     router.push("/confirm-booking")
   }
 
+  // Determine allowed tabs from service.session_options (support legacy array and new object shape)
+  const allowedTabs = (function getAllowed(){
+    try{
+      const raw = service?.session_options
+      if (!raw) return undefined
+      const parsed = Array.isArray(raw) ? raw : JSON.parse(String(raw))
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        const times = parsed.times_of_day as string[] | undefined
+        if (Array.isArray(times) && times.length>0) return times.map(t => {
+          const cap = t.charAt(0).toUpperCase() + t.slice(1).toLowerCase()
+          if (cap === 'Morning' || cap === 'Afternoon' || cap === 'Evening') return cap as 'Morning'|'Afternoon'|'Evening'
+          return cap as 'Morning'|'Afternoon'|'Evening'
+        })
+      }
+    }catch{}
+    return undefined
+  })()
+
   return (
     <div>
       <section className="max-w-2xl mx-auto mb-8">
@@ -135,7 +165,7 @@ export default function BookingPanel({ service }: { service: any }) {
         </div>
       </section>
 
-      <ServiceDateSelector onChange={(s: any) => {
+      <ServiceDateSelector allowedTabs={allowedTabs} onChange={(s: any) => {
         setSelectedDate(s.date || null)
         setSelectedTime(s.time || null)
       }} />

@@ -21,6 +21,13 @@ function cacheSet(key: string, value: any, ttlMs: number) {
   _cache.set(key, { value, expiresAt: Date.now() + ttlMs })
 }
 
+// Clear cached keys matching a prefix (used to invalidate server-side caches)
+export function clearCachePrefix(prefix: string) {
+  for (const key of Array.from(_cache.keys())) {
+    if (key.startsWith(prefix)) _cache.delete(key)
+  }
+}
+
 // Category Queries
 export async function getCategories() {
   const supabase = await createClient()

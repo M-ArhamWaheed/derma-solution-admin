@@ -106,6 +106,42 @@ CREATE POLICY "Admins can read all profiles"
   ON public.profiles FOR SELECT
   USING (public.is_admin());
 
+-- Ensure `address` column exists on profiles (idempotent)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'address'
+  ) THEN
+    ALTER TABLE public.profiles ADD COLUMN address TEXT;
+  END IF;
+END
+$$;
+
+-- Ensure `gender` column exists on profiles (idempotent)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'gender'
+  ) THEN
+    ALTER TABLE public.profiles ADD COLUMN gender TEXT;
+  END IF;
+END
+$$;
+
+-- Ensure `phone` column exists on profiles (idempotent)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'phone'
+  ) THEN
+    ALTER TABLE public.profiles ADD COLUMN phone TEXT;
+  END IF;
+END
+$$;
+
 -- CATEGORIES
 CREATE TABLE IF NOT EXISTS public.categories (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

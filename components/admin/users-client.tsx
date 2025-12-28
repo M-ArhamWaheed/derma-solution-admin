@@ -61,3 +61,8 @@ export function UsersClient({ initialPage = 1, pageSize = 20 }: { initialPage?: 
     </div>
   )
 }
+
+// Helper to clear the client-side users cache so other components can refresh
+export function clearUsersClientCache() {
+  clientCache.clear()
+}

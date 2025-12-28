@@ -15,6 +15,11 @@ export interface Profile {
   last_name: string
   role: UserRole
   avatar_url?: string
+  // Optional contact/profile fields that may be set in profile settings
+  phone?: string
+  phone_number?: string
+  address?: string
+  gender?: string
   created_at: string
   updated_at: string
 }

@@ -20,10 +20,11 @@ const timeSlots = {
   Evening: ["5:00 pm", "5:15 pm", "5:30 pm", "5:45 pm", "6:00 pm", "6:15 pm", "6:30 pm", "6:45 pm"],
 };
 
-export default function ServiceDateSelector({ onChange }: { onChange?: (s: { date?: string | null; time?: string | null }) => void }) {
+export default function ServiceDateSelector({ onChange, allowedTabs }: { onChange?: (s: { date?: string | null; time?: string | null }) => void, allowedTabs?: ('Morning'|'Afternoon'|'Evening')[] }) {
   const [state, dispatch] = useReducer(modalReducer, { showCalendar: false });
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [selectedTab, setSelectedTab] = useState<'Morning' | 'Afternoon' | 'Evening'>('Morning');
+  const defaultTab: 'Morning'|'Afternoon'|'Evening' = (allowedTabs && allowedTabs.length>0) ? allowedTabs[0] : 'Morning'
+  const [selectedTab, setSelectedTab] = useState<'Morning' | 'Afternoon' | 'Evening'>(defaultTab);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
   const handleDateSelect = (date: string) => {
@@ -53,7 +54,7 @@ export default function ServiceDateSelector({ onChange }: { onChange?: (s: { dat
             </div>
             <div className="text-muted-foreground text-base mb-2">Choose a time that suits you</div>
             <div className="flex rounded-full overflow-hidden bg-[#ececec] mb-4">
-              {(["Morning", "Afternoon", "Evening"] as const).map((tab) => (
+              {(allowedTabs && allowedTabs.length>0 ? allowedTabs : (["Morning", "Afternoon", "Evening"] as const)).map((tab) => (
                 <button
                   key={tab}
                   className={`flex-1 py-3 px-2  text-lg font-medium transition ${selectedTab === tab ? "bg-muted  shadow" : "text-muted-foreground"}`}
