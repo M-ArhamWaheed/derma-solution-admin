@@ -15,8 +15,8 @@ export default function SignInPage() {
       <div className="flex-1 flex items-center justify-center p-8 bg-background">
         <div className="w-full max-w-md space-y-8">
           <div className="space-y-2">
-            <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-2 mb-8">
-              ← Back to dashboard
+            <Link href="/signup" className="text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-2 mb-8">
+              ← Back to signup
             </Link>
 
             <h1 className="text-4xl font-bold font-heading">Sign In</h1>

@@ -51,7 +51,7 @@ export function Navbar({ user, action }: NavbarProps) {
       title: "Signed out",
       description: "You have been signed out successfully",
     })
-    router.push("/signin")
+    router.push("/dashboard")
     router.refresh()
   }
 

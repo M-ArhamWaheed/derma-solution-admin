@@ -28,6 +28,7 @@ export default function BookingPanel({ service }: { service: any }) {
   const [selectedPackage, setSelectedPackage] = useState<string>(servicePackages[0] || "1 session")
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
+  const [userInteracted, setUserInteracted] = useState(false)
   const [loading, setLoading] = useState(false)
 
   // receive selection updates from ServiceDateSelector
@@ -48,7 +49,7 @@ export default function BookingPanel({ service }: { service: any }) {
       const pending = JSON.parse(raw)
       if (pending?.service_id === service?.id) {
         const timers: number[] = []
-        if (pending.package && servicePackages.includes(pending.package)) {
+        if (pending.package && servicePackages.includes(pending.package) && !userInteracted) {
           timers.push(window.setTimeout(() => setSelectedPackage(pending.package), 0))
         }
         if (pending.date) timers.push(window.setTimeout(() => setSelectedDate(pending.date), 0))
@@ -59,7 +60,7 @@ export default function BookingPanel({ service }: { service: any }) {
       // ignore parse errors
     }
     return
-  }, [service?.id, servicePackages])
+  }, [service?.id, servicePackages, userInteracted])
 
   const basePrice = Number(service?.base_price ?? 0)
   const getSessionCount = (label: string) => {
@@ -144,7 +145,7 @@ export default function BookingPanel({ service }: { service: any }) {
               return (
                 <div
                   key={p}
-                  onClick={() => setSelectedPackage(p)}
+                  onClick={() => { setUserInteracted(true); console.log('select package', p); setSelectedPackage(p) }}
                   className={`border rounded-xl px-4 py-2 flex items-center justify-between hover:shadow-md hover:bg-white hover:text-black transition cursor-pointer ${selectedPackage === p ? "ring-2 ring-offset-2 ring-slate-400" : ""}`}
                 >
                   <div>

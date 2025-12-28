@@ -67,11 +67,10 @@ export function SignInForm() {
         description: "Signed in successfully!",
       })
 
-      // Only resume pending booking when it was set as part of the booking flow
-      // (signup sets `prefillEmail`). Also do not send admins to the booking flow.
+      // Resume pending booking if the booking flow saved a `pendingBooking` item.
+      // Do not send admins to the booking flow.
       const hasPending = typeof window !== 'undefined' && localStorage.getItem('pendingBooking')
-      const hasPrefill = typeof window !== 'undefined' && localStorage.getItem('prefillEmail')
-      if (hasPending && hasPrefill && profile?.role !== 'admin') {
+      if (hasPending && profile?.role !== 'admin') {
         try { localStorage.removeItem('prefillEmail') } catch {}
         router.push('/confirm-booking')
         router.refresh()

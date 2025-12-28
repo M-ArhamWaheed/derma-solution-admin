@@ -104,7 +104,7 @@ export function SignUpForm() {
       if (data.user) {
         toast({
           title: "Success",
-          description: "Account created! Check your email to confirm.",
+          description: "Account created! Redirecting...",
         })
 
         // If there was a pending booking, send user to sign in so they
