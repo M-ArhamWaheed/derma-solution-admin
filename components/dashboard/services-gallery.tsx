@@ -13,13 +13,18 @@ interface Service {
 }
 
 
-export function ServicesGallery() {
+export function ServicesGallery({ categoryId }: { categoryId?: string | null } = {}) {
 	const [services, setServices] = useState<Service[]>([]);
 	useEffect(() => {
-		fetch("/api/services")
+		fetch(`/api/services`)
 			.then((res) => res.json())
-			.then((data) => setServices(data || []));
-	}, []);
+			.then((data) => {
+				const all = data || []
+				if (categoryId) {
+					setServices(all.filter((s: any) => String(s.category_id) === String(categoryId)))
+				} else setServices(all)
+			})
+	}, [categoryId]);
 
 	return (
 		<section className="container py-8">

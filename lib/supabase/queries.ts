@@ -42,6 +42,33 @@ export async function getCategories() {
   return data as Category[]
 }
 
+// Return categories that have at least one active service.
+export async function getCategoriesWithActiveServices() {
+  const supabase = await createClient()
+
+  // Query active services and include their category object
+  const { data, error } = await supabase
+    .from('services')
+    .select('category:categories(*)')
+    .eq('is_active', true)
+
+  if (error) throw error
+
+  const cats = (data || [])
+    .map((s: any) => s.category)
+    .filter(Boolean)
+
+  // Deduplicate by id while preserving display_order sort
+  const map = new Map<string, Category>()
+  for (const c of cats) {
+    if (!map.has(c.id)) map.set(c.id, c)
+  }
+
+  const unique = Array.from(map.values())
+  unique.sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0))
+  return unique as Category[]
+}
+
 export async function getCategoryById(id: string) {
   const supabase = await createClient()
   

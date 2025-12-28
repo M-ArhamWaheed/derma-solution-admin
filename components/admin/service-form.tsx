@@ -212,18 +212,7 @@ export function ServiceForm({ onServiceSaved, initialValues, categories, onCance
           required
         />
       </div>
-      <div>
-        <label className="block mb-1 font-medium text-foreground">Slug</label>
-        <Input
-          value={slug}
-          onChange={e => {
-            setSlug(e.target.value)
-            setSlugEdited(true)
-          }}
-          placeholder="treatment-slug"
-          required
-        />
-      </div>
+      {/* Slug is auto-generated; hidden from admin UI */}
       <div>
         <label className="block mb-1 font-medium text-foreground">Category</label>
         <select 

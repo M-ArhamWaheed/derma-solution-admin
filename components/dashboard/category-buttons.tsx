@@ -5,12 +5,19 @@ import type { Category } from "@/types"
 
 interface CategoryButtonsProps {
   categories: Category[]
+  selectedId?: string | null
+  onSelect?: (id: string) => void
 }
 
-export function CategoryButtons({ categories }: CategoryButtonsProps) {
+export function CategoryButtons({ categories, selectedId = null, onSelect }: CategoryButtonsProps) {
   const scrollToCategory = (categoryId: string) => {
     const element = document.getElementById(`category-${categoryId}`)
     element?.scrollIntoView({ behavior: "smooth", block: "start" })
+  }
+
+  const handleClick = (id: string) => {
+    onSelect?.(id)
+    scrollToCategory(id)
   }
 
   return (
@@ -21,10 +28,10 @@ export function CategoryButtons({ categories }: CategoryButtonsProps) {
           {categories.map((category) => (
             <Button
               key={category.id}
-              variant="outline"
+              variant={selectedId === category.id ? "default" : "outline"}
               size="sm"
               className="font-semibold text-xs md:text-sm whitespace-nowrap"
-              onClick={() => scrollToCategory(category.id)}
+              onClick={() => handleClick(category.id)}
             >
               {category.name}
             </Button>

@@ -4,10 +4,10 @@ import { redirect } from "next/navigation"
 import { Navbar } from "@/components/layout/navbar"
 import { Footer } from "@/components/layout/footer"
 import { HeroSection } from "@/components/dashboard/hero-section"
-import { CategoryButtons } from "@/components/dashboard/category-buttons"
+import { CategoryServices } from "@/components/dashboard/category-services"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ServicesGallery } from "@/components/dashboard/services-gallery"
-// import { getCategories } from "@/lib/supabase/queries"
+import { getCategoriesWithActiveServices } from "@/lib/supabase/queries"
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -30,22 +30,8 @@ export default async function DashboardPage() {
     }
   }
 
-  // Dummy categories for UI testing
-  const now = new Date().toISOString();
-  const categories = [
-    { id: "1", name: "Facials", display_order: 1, is_active: true, created_at: now, updated_at: now },
-    { id: "2", name: "Laser Hair Removal", display_order: 2, is_active: true, created_at: now, updated_at: now },
-    { id: "3", name: "Botox", display_order: 3, is_active: true, created_at: now, updated_at: now },
-    { id: "4", name: "Fillers", display_order: 4, is_active: true, created_at: now, updated_at: now },
-    { id: "5", name: "Peels", display_order: 5, is_active: true, created_at: now, updated_at: now },
-    { id: "6", name: "Acne Treatment", display_order: 6, is_active: true, created_at: now, updated_at: now },
-    { id: "7", name: "Facials", display_order: 7, is_active: true, created_at: now, updated_at: now },
-    { id: "8", name: "Laser Hair Removal", display_order: 8, is_active: true, created_at: now, updated_at: now },
-    { id: "9", name: "Botox", display_order: 9, is_active: true, created_at: now, updated_at: now },
-    { id: "10", name: "Fillers", display_order: 10, is_active: true, created_at: now, updated_at: now },
-    { id: "11", name: "Peels", display_order: 11, is_active: true, created_at: now, updated_at: now },
-    { id: "12", name: "Acne Treatment", display_order: 12, is_active: true, created_at: now, updated_at: now },
-  ];
+  // Load only categories that have at least one active service
+  const categories = await getCategoriesWithActiveServices()
 
   return (
     <div className="min-h-screen flex flex-col overflow-x-hidden">
@@ -66,7 +52,7 @@ export default async function DashboardPage() {
             </div>
           }
         >
-          <CategoryButtons categories={categories} />
+          <CategoryServices categories={categories} />
         </Suspense>
 
         {/* Services Gallery Section */}

@@ -13,6 +13,7 @@ export function AddCategoryForm({ onCategoryAdded, initialValues, onCancel }: { 
   const [name, setName] = useState(initialValues?.name || "")
   const [description, setDescription] = useState(initialValues?.description || "")
   const [slug, setSlug] = useState(initialValues?.slug || "")
+  const [slugEdited, setSlugEdited] = useState<boolean>(Boolean(initialValues?.slug))
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const [displayOrder, setDisplayOrder] = useState(initialValues?.display_order || 0)
@@ -20,6 +21,15 @@ export function AddCategoryForm({ onCategoryAdded, initialValues, onCancel }: { 
   const [imageUrl, setImageUrl] = useState(initialValues?.image_url || "")
   const [updating, setUpdating] = useState(false)
   const [isPending, startTransition] = useTransition()
+
+  const slugify = (v: string) =>
+    v
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "")
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -30,6 +40,41 @@ export function AddCategoryForm({ onCategoryAdded, initialValues, onCancel }: { 
     if (!slug.trim()) {
       toast({ title: "Slug is required", variant: "destructive" })
       return
+    }
+    // normalize slug and ensure uniqueness among categories
+
+    const ensureUniqueSlug = (base: string, existing: Set<string>, excludeId?: string | null) => {
+      if (!existing.has(base)) return base
+      let i = 1
+      let candidate = `${base}-${i}`
+      while (existing.has(candidate)) {
+        i += 1
+        candidate = `${base}-${i}`
+      }
+      return candidate
+    }
+
+    let safeSlugBase = slugify(slug)
+    let safeSlug = safeSlugBase
+    try {
+      const allRes = await fetch('/api/categories')
+      if (allRes.ok) {
+        const all = await allRes.json()
+        const existing = new Set<string>()
+        all.forEach((c: any) => {
+          if (!c || !c.slug) return
+          if (initialValues?.id && c.id === initialValues.id) return
+          existing.add(String(c.slug).toLowerCase())
+        })
+        if (existing.has(safeSlugBase)) {
+          const unique = ensureUniqueSlug(safeSlugBase, existing, initialValues?.id)
+          safeSlug = unique
+          setSlug(unique)
+          toast({ title: `Slug already in use, changed to ${unique}` })
+        }
+      }
+      } catch (err) {
+      // ignore uniqueness check failures and proceed with provided slug
     }
     let finalImageUrl = imageUrl
     if (imageFile) {
@@ -60,26 +105,26 @@ export function AddCategoryForm({ onCategoryAdded, initialValues, onCancel }: { 
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              name,
-              description,
-              slug,
-              image_url: finalImageUrl,
-              display_order: displayOrder,
-              is_active: isActive,
-            }),
+                  name,
+                  description,
+                  slug: safeSlug,
+                  image_url: finalImageUrl,
+                  display_order: displayOrder,
+                  is_active: isActive,
+                }),
           })
         } else {
           res = await fetch("/api/categories", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              name,
-              description,
-              slug,
-              image_url: finalImageUrl,
-              display_order: displayOrder,
-              is_active: isActive,
-            }),
+                  name,
+                  description,
+                  slug: safeSlug,
+                  image_url: finalImageUrl,
+                  display_order: displayOrder,
+                  is_active: isActive,
+                }),
           })
         }
         if (!res.ok) {
@@ -112,11 +157,15 @@ export function AddCategoryForm({ onCategoryAdded, initialValues, onCancel }: { 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <div>
         <label className="block mb-1 font-medium text-foreground">Name</label>
-        <Input value={name} onChange={e => setName(e.target.value)} placeholder="Category name" required />
+        <Input value={name} onChange={e => {
+          const v = e.target.value
+          setName(v)
+          if (!slugEdited) setSlug(slugify(v))
+        }} placeholder="Category name" required />
       </div>
       <div>
         <label className="block mb-1 font-medium text-foreground">Slug</label>
-        <Input value={slug} onChange={e => setSlug(e.target.value)} placeholder="category-slug" required />
+        <Input value={slug} onChange={e => { setSlug(e.target.value); setSlugEdited(true) }} placeholder="category-slug" required />
       </div>
       <div>
         <label className="block mb-1 font-medium text-foreground">Description</label>
