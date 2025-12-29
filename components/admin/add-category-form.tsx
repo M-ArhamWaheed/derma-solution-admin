@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useState, useTransition, useEffect } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,6 +10,17 @@ import type { Category } from "@/types/database"
 // import { createCategory } from "@/lib/supabase/create-category"
 
 export function AddCategoryForm({ onCategoryAdded, initialValues, onCancel }: { onCategoryAdded?: () => void, initialValues?: Partial<Category>, onCancel?: () => void }) {
+  // Synchronize form fields when initialValues changes
+  useEffect(() => {
+    setName(initialValues?.name || "")
+    setDescription(initialValues?.description || "")
+    setSlug(initialValues?.slug || "")
+    setSlugEdited(Boolean(initialValues?.slug))
+    setImageFile(null)
+    setImageUrl(initialValues?.image_url || "")
+    setDisplayOrder(initialValues?.display_order || 0)
+    setIsActive(initialValues?.is_active ?? true)
+  }, [initialValues])
   const [name, setName] = useState(initialValues?.name || "")
   const [description, setDescription] = useState(initialValues?.description || "")
   const [slug, setSlug] = useState(initialValues?.slug || "")

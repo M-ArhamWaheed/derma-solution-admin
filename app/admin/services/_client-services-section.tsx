@@ -1,20 +1,40 @@
+
+
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useSyncExternalStore } from "react"
 import { ServiceForm } from "@/components/admin/service-form"
 import type { Category, ServiceWithCategory } from "@/types"
 
+
+
 export default function ClientServicesSection({ categories }: { categories: Category[] }) {
+  // External store for services
+  function subscribe(callback: () => void) {
+    // No real-time updates, so just a dummy unsubscribe
+    return () => {}
+  }
+  async function getServicesSnapshot() {
+    const res = await fetch("/api/services")
+    if (res.ok) return await res.json()
+    return []
+  }
+  
+  // useSyncExternalStore expects synchronous getSnapshot, so we use a workaround
   const [services, setServices] = useState<ServiceWithCategory[]>([])
+  const [showActions, setShowActions] = useState<string | null>(null)
+  useSyncExternalStore(
+    subscribe,
+    () => services,
+    () => services
+  )
+  // Initial fetch
+  useState(() => {
+    getServicesSnapshot().then(setServices)
+  })
   const [editService, setEditService] = useState<ServiceWithCategory | undefined>(undefined)
 
-  useEffect(() => {
-    const fetchServices = async () => {
-      const res = await fetch("/api/services")
-      if (res.ok) setServices(await res.json())
-    }
-    fetchServices()
-  }, [])
+  // Removed useEffect, replaced with useSyncExternalStore and initial fetch
 
   const refreshServices = async () => {
     const res = await fetch("/api/services")
@@ -60,26 +80,76 @@ export default function ClientServicesSection({ categories }: { categories: Cate
             <tr>
               <th className="px-4 py-3 text-left text-sm font-semibold text-foreground border-b border-border">Name</th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-foreground border-b border-border">Category</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-foreground border-b border-border">Image</th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-foreground border-b border-border">Price</th>
-              <th className="px-4 py-3 text-center text-sm font-semibold text-foreground border-b border-border">Popular</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-foreground border-b border-border">Description</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-foreground border-b border-border">Duration</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-foreground border-b border-border">Sessions</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-foreground border-b border-border">Available Times</th>
               <th className="px-4 py-3 text-center text-sm font-semibold text-foreground border-b border-border">Active</th>
+              <th className="px-4 py-3 text-center text-sm font-semibold text-foreground border-b border-border">Popular</th>
               <th className="px-4 py-3 text-center text-sm font-semibold text-foreground border-b border-border">Manage</th>
             </tr>
           </thead>
           <tbody>
-            {services.map((service) => (
-              <tr key={service.id} className="border-b border-border hover:bg-muted/30 transition-colors">
-                <td className="px-4 py-3 font-semibold text-foreground">{service.name}</td>
-                <td className="px-4 py-3 text-muted-foreground">{categories.find((c) => c.id === service.category_id)?.name || '-'}</td>
-                <td className="px-4 py-3 text-foreground">£{service.base_price}</td>
-                <td className="px-4 py-3 text-center text-foreground">{service.is_popular ? 'Yes' : 'No'}</td>
-                <td className="px-4 py-3 text-center text-foreground">{service.is_active ? 'Yes' : 'No'}</td>
-                <td className="px-4 py-3 text-center">
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded mr-2" onClick={() => handleEdit(service)}>Edit</button>
-                  <button className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded" onClick={() => handleDelete(service)}>Delete</button>
-                </td>
-              </tr>
-            ))}
+            {services.map((service) => {
+              let sessions = "-"
+              let times = "-"
+              if (service.session_options) {
+                try {
+                  const parsed = typeof service.session_options === "string" ? JSON.parse(service.session_options) : service.session_options
+                  if (Array.isArray(parsed)) {
+                    sessions = parsed.join(", ")
+                  } else if (parsed && typeof parsed === "object") {
+                    sessions = Array.isArray(parsed.options) ? parsed.options.join(", ") : "-"
+                    times = Array.isArray(parsed.times_of_day) ? parsed.times_of_day.join(", ") : "-"
+                  }
+                } catch {}
+              }
+              return (
+                <tr key={service.id} className="border-b border-border hover:bg-muted/30 transition-colors">
+                  <td className="px-4 py-3 font-semibold text-foreground">{service.name}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{categories.find((c) => c.id === service.category_id)?.name || '-'}</td>
+                  <td className="px-4 py-3 text-foreground">{service.thumbnail ? <img src={service.thumbnail} alt="thumb" className="w-12 h-12 object-cover rounded" /> : "-"}</td>
+                  <td className="px-4 py-3 text-foreground">£{service.base_price}</td>
+                  <td className="px-4 py-3 text-foreground">{service.description || "-"}</td>
+                  <td className="px-4 py-3 text-foreground">{service.duration_minutes || "-"}</td>
+                  <td className="px-4 py-3 text-foreground">{sessions}</td>
+                  <td className="px-4 py-3 text-foreground">{times}</td>
+                  <td className="px-4 py-3 text-center text-foreground">{service.is_active ? 'Yes' : 'No'}</td>
+                  <td className="px-4 py-3 text-center text-foreground">{service.is_popular ? 'Yes' : 'No'}</td>
+                  <td className="px-4 py-3 text-center relative">
+                    <span
+                      className="cursor-pointer text-gray-500 hover:text-white"
+                      title="Manage"
+                      onClick={() => setShowActions(showActions === service.id ? null : service.id)}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                        <circle cx="12" cy="12" r="1.5" />
+                        <circle cx="19.5" cy="12" r="1.5" />
+                        <circle cx="4.5" cy="12" r="1.5" />
+                      </svg>
+                    </span>
+                    {showActions === service.id && (
+                      <div className="absolute right-0 mt-2 w-28 bg-white border border-gray-200 rounded shadow-lg z-10 flex flex-col">
+                        <button
+                          className="px-4 py-2 text-left hover:bg-primary text-blue-600"
+                          onClick={() => { setShowActions(null); handleEdit(service); }}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="px-4 py-2 text-left hover:bg-primary text-red-600"
+                          onClick={() => { setShowActions(null); handleDelete(service); }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>

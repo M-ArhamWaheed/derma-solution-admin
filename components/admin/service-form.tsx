@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useState, useTransition, useEffect } from "react"
 import Image from "next/image"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -23,30 +23,42 @@ export function ServiceForm({ onServiceSaved, initialValues, categories, onCance
   const [isPending, startTransition] = useTransition()
   const defaultSessionOptions = ["1 session", "3 sessions", "6 sessions", "10 sessions"]
   const defaultTimeOptions = ["morning", "afternoon", "evening"]
-  const [sessionOptions, setSessionOptions] = useState<string[]>(
-    Array.isArray(initialValues?.session_options)
-      ? (initialValues?.session_options as string[])
-      : initialValues?.session_options
-      ? (function parseSession(v){
-          try {
-            const parsed = JSON.parse(String(v))
-            // support object shape { options: [], times_of_day: [] }
-            if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return Array.isArray(parsed.options) ? parsed.options : []
-            return Array.isArray(parsed) ? parsed : []
-          } catch { return [] }
-        })(initialValues.session_options)
-      : []
-  )
-  const [timeOptions, setTimeOptions] = useState<string[]>(
-    (function initTimes(){
-      if (!initialValues?.session_options) return []
-      try {
-        const parsed = JSON.parse(String(initialValues.session_options))
-        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return Array.isArray(parsed.times_of_day) ? parsed.times_of_day : []
-      } catch {}
-      return []
-    })()
-  )
+  const parseSessionOptions = (v: any) => {
+    if (Array.isArray(v)) return v
+    if (!v) return []
+    try {
+      const parsed = JSON.parse(String(v))
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return Array.isArray(parsed.options) ? parsed.options : []
+      return Array.isArray(parsed) ? parsed : []
+    } catch { return [] }
+  }
+  const parseTimeOptions = (v: any) => {
+    if (!v) return []
+    try {
+      const parsed = JSON.parse(String(v))
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return Array.isArray(parsed.times_of_day) ? parsed.times_of_day : []
+    } catch {}
+    return []
+  }
+  const [sessionOptions, setSessionOptions] = useState<string[]>(parseSessionOptions(initialValues?.session_options))
+  const [timeOptions, setTimeOptions] = useState<string[]>(parseTimeOptions(initialValues?.session_options))
+
+  // Synchronize form fields when initialValues changes
+  useEffect(() => {
+    setName(initialValues?.name || "")
+    setSlug(initialValues?.slug?.trim() || "")
+    setSlugEdited(Boolean(initialValues?.slug))
+    setDescription(initialValues?.description || "")
+    setCategoryId(initialValues?.category_id || "")
+    setBasePrice(initialValues?.base_price || "")
+    setDuration(initialValues?.duration_minutes || "")
+    setIsPopular(initialValues?.is_popular || false)
+    setIsActive(initialValues?.is_active ?? true)
+    setThumbnail(initialValues?.thumbnail || "")
+    setImageFile(null)
+    setSessionOptions(parseSessionOptions(initialValues?.session_options))
+    setTimeOptions(parseTimeOptions(initialValues?.session_options))
+  }, [initialValues])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -297,13 +309,15 @@ export function ServiceForm({ onServiceSaved, initialValues, categories, onCance
         )}
       </div>
       <div className="flex items-center gap-2 mt-6">
-        <input type="checkbox" checked={isPopular} onChange={e => setIsPopular(e.target.checked)} id="isPopular" className="h-4 w-4 rounded border-input" />
-        <label htmlFor="isPopular" className="font-medium text-foreground">Popular</label>
-      </div>
-      <div className="flex items-center gap-2 mt-6">
         <input type="checkbox" checked={isActive} onChange={e => setIsActive(e.target.checked)} id="isActive" className="h-4 w-4 rounded border-input" />
         <label htmlFor="isActive" className="font-medium text-foreground">Active</label>
       </div>
+      <div className="flex items-center gap-2 mt-6">
+        <input type="checkbox" checked={isPopular} onChange={e => setIsPopular(e.target.checked)} id="isPopular" className="h-4 w-4 rounded border-input" />
+        <label htmlFor="isPopular" className="font-medium text-foreground">Popular</label>
+      </div>
+      
+
       <div className="col-span-full flex gap-3">
         <Button type="submit" disabled={isPending || uploading} size="lg" className="flex-1">
           {initialValues?.id ? "Update Treatment" : "Add Treatment"}
