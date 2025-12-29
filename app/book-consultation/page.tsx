@@ -23,10 +23,16 @@ export default async function BookConsultationPage() {
   }
 
   let upcoming: any = null
+  let debugOrders: any[] = []
   if (authUser) {
     const orders = await getOrdersByCustomer(authUser.id)
+    debugOrders = orders || []
     if (orders && orders.length) {
-      const candidates = orders.filter((o: any) => o.status === 'pending' || o.status === 'confirmed')
+      const now = new Date()
+      const candidates = orders.filter((o: any) => {
+        const dt = new Date(`${o.booking_date}T${o.booking_time || '00:00:00'}`)
+        return (o.status === 'pending' || o.status === 'confirmed') && dt >= now
+      })
       candidates.sort((a: any, b: any) => {
         const ad = new Date(`${a.booking_date}T${a.booking_time || '00:00:00'}`)
         const bd = new Date(`${b.booking_date}T${b.booking_time || '00:00:00'}`)
@@ -49,16 +55,24 @@ export default async function BookConsultationPage() {
     <>
       <Navbar user={user} />
       <main className="container mx-auto py-8">
-        <div className="mb-4">
+        
+        {/* Account Greeting Section */}
+        <section className="max-w-3xl mx-auto mb-10">
+          <div className="mb-2">
           <Link href="/dashboard">
             <Button variant="ghost">← Back to Dashboard</Button>
           </Link>
         </div>
-        {/* Account Greeting Section */}
-        <section className="max-w-3xl mx-auto mb-10">
           <div className="mb-2 text-muted-foreground text-base font-normal">Good evening</div>
-          <h1 className="text-4xl font-bold tracking-tight">My Account</h1>
+          <div className="flex items-center justify-between"> 
+            <h1 className="text-4xl font-bold tracking-tight">My Account</h1>
+            {!authUser && (
+              <p >To see your bookings <Link href="/signin"><Button>Sign In</Button></Link></p>
+            )}
+          </div>
+          
         </section>
+       
         {/* Upcoming Appointment Section */}
         <section className="bg-muted rounded-xl shadow p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between max-w-3xl mx-auto">
           <div className="flex-1 min-w-0">

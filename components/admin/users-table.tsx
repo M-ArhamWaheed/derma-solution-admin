@@ -1,6 +1,6 @@
 "use client"
 
-import { memo } from "react"
+import { memo, useState } from "react"
 import type { Profile } from "@/types"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import {
@@ -22,13 +22,23 @@ interface UsersTableProps {
   pageSize?: number
 }
 
-function UsersTableComponent({ users, currentPage, totalCount, pageSize }: UsersTableProps) {
+function UsersTableComponent({ users: initialUsers, currentPage, totalCount, pageSize }: UsersTableProps) {
+  const [users, setUsers] = useState(initialUsers || [])
+  const handleDelete = async (userId: string) => {
+    if (!window.confirm("Are you sure you want to delete this user?")) return
+    // Call API to delete user in Supabase
+    const res = await fetch(`/api/admin/users/${userId}`, { method: "DELETE" })
+    if (res.ok) {
+      setUsers(users.filter(u => u.id !== userId))
+    } else {
+      alert("Failed to delete user.")
+    }
+  }
   if (!users || users.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">No users yet</div>
     )
   }
-
   return (
     <div className="rounded-md border">
       <Table>
@@ -74,10 +84,7 @@ function UsersTableComponent({ users, currentPage, totalCount, pageSize }: Users
               <TableCell>{new Date(user.created_at).toLocaleString()}</TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
-                  <Button variant="ghost" size="icon">
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="icon" onClick={() => handleDelete(user.id)}>
                     <Trash className="h-4 w-4" />
                   </Button>
                 </div>
@@ -86,7 +93,6 @@ function UsersTableComponent({ users, currentPage, totalCount, pageSize }: Users
           ))}
         </TableBody>
       </Table>
-
       {typeof currentPage !== 'undefined' && typeof totalCount !== 'undefined' && (
         <div className="flex items-center justify-between p-4">
           <div className="text-sm text-muted-foreground">Showing page {currentPage}</div>

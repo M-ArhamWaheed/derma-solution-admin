@@ -1,6 +1,6 @@
 "use client"
 
-import { memo } from "react"
+import { memo, useState } from "react"
 import type { OrderWithDetails } from "@/types"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -22,7 +22,22 @@ interface OrdersTableProps {
   pageSize?: number
 }
 
-function OrdersTableComponent({ orders, currentPage, totalCount, pageSize }: OrdersTableProps) {
+function OrdersTableComponent({ orders: initialOrders, currentPage, totalCount, pageSize }: OrdersTableProps) {
+  const [orders, setOrders] = useState(initialOrders)
+  const [showDropdown, setShowDropdown] = useState<string | null>(null)
+  const handleConfirm = async (orderId: string) => {
+    const res = await fetch(`/api/orders/${orderId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'confirmed' })
+    })
+    if (res.ok) {
+      setOrders(orders.map(o => o.id === orderId ? { ...o, status: 'confirmed' } : o))
+      setShowDropdown(null)
+    } else {
+      alert('Failed to confirm order.')
+    }
+  }
   const getStatusVariant = (
     status: string
   ): "default" | "secondary" | "destructive" | "outline" => {
@@ -90,9 +105,26 @@ function OrdersTableComponent({ orders, currentPage, totalCount, pageSize }: Ord
               </TableCell>
               <TableCell>£{order.total_amount.toFixed(2)}</TableCell>
               <TableCell>
-                <Badge variant={getStatusVariant(order.status)}>
-                  {order.status}
-                </Badge>
+                {order.status === 'pending' ? (
+                  <div className="flex items-center gap-2">
+                    <button
+                      className="px-2 py-1 rounded bg-yellow-100 text-yellow-800 border border-yellow-300 hover:bg-yellow-200 transition"
+                      disabled
+                    >
+                      Pending
+                    </button>
+                    <button
+                      className="px-2 py-1 rounded bg-green-100 text-green-800 border border-green-300 hover:bg-green-200 transition"
+                      onClick={() => handleConfirm(order.id)}
+                    >
+                      Confirm
+                    </button>
+                  </div>
+                ) : (
+                  <Badge variant={getStatusVariant(order.status)}>
+                    {order.status}
+                  </Badge>
+                )}
               </TableCell>
               <TableCell className="text-right">
                 <Button variant="ghost" size="icon">

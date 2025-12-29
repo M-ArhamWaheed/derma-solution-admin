@@ -129,7 +129,7 @@ export default function BookingPanel({ service }: { service: any }) {
 
   return (
     <div>
-      <section className="max-w-2xl mx-auto mb-8">
+      <section className="max-w-3xl mx-auto mb-8">
         <div className="bg-muted rounded-xl shadow p-4">
           <div className="flex items-center justify-between mb-4">
             <div className="text-xl font-semibold">Select package</div>

@@ -58,7 +58,7 @@ function ServiceCardComponent({ service, featured = false }: ServiceCardProps) {
       </CardContent>
 
       <CardFooter className="p-6 pt-0">
-        <Button className="w-full" size="lg">
+        <Button className="w-full cursor-pointer" size="lg">
           {featured ? "Book now" : "Buy now"}
         </Button>
       </CardFooter>

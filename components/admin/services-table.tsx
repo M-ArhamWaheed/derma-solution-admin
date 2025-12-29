@@ -83,7 +83,7 @@ function ServicesTableComponent({ services }: ServicesTableProps) {
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
                     <Button variant="ghost" size="icon" onClick={() => setShowActions(showActions === service.id ? null : service.id)}>
-                      <Edit className="h-4 w-4" />
+                      Manage
                     </Button>
                     {showActions === service.id && (
                       <div className="flex gap-2">

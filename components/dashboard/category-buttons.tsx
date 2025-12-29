@@ -21,7 +21,7 @@ export function CategoryButtons({ categories, selectedId = null, onSelect }: Cat
   }
 
   return (
-    <section className="w-full py-4 overflow-hidden">
+    <section className="w-full py-2 overflow-hidden">
       <div className="container px-4">
         {/* Wrapped buttons for all screen sizes */}
         <div className="flex flex-wrap gap-2 md:gap-3 justify-center max-w-full">

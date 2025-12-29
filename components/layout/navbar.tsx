@@ -35,7 +35,7 @@ interface NavbarProps {
 
 const navLinks = [
   { href: "/dashboard", label: "Dashboard" },
-  { href: "/my-bookings", label: "My Bookings" },
+  { href: "/book-consultation", label: "My Bookings" },
 
 ]
 
