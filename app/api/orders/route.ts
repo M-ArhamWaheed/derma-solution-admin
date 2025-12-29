@@ -1,3 +1,13 @@
+import { getOrders } from '@/lib/supabase/queries';
+
+export async function GET() {
+  try {
+    const orders = await getOrders();
+    return NextResponse.json(orders);
+  } catch (error) {
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
+  }
+}
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 

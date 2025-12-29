@@ -1,6 +1,7 @@
 "use client"
 
 import { memo, useState } from "react"
+import useSWR from 'swr'
 import type { OrderWithDetails } from "@/types"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -22,8 +23,9 @@ interface OrdersTableProps {
   pageSize?: number
 }
 
-function OrdersTableComponent({ orders: initialOrders, currentPage, totalCount, pageSize }: OrdersTableProps) {
-  const [orders, setOrders] = useState(initialOrders)
+function OrdersTableComponent({ currentPage, totalCount, pageSize }: OrdersTableProps) {
+  const fetcher = (url: string) => fetch(url).then(res => res.json())
+  const { data: orders, mutate } = useSWR('/api/orders', fetcher, { refreshInterval: 5000 })
   const [showDropdown, setShowDropdown] = useState<string | null>(null)
   const handleConfirm = async (orderId: string) => {
     const res = await fetch(`/api/orders/${orderId}`, {
@@ -32,7 +34,7 @@ function OrdersTableComponent({ orders: initialOrders, currentPage, totalCount, 
       body: JSON.stringify({ status: 'confirmed' })
     })
     if (res.ok) {
-      setOrders(orders.map(o => o.id === orderId ? { ...o, status: 'confirmed' } : o))
+      mutate()
       setShowDropdown(null)
     } else {
       alert('Failed to confirm order.')
@@ -55,6 +57,7 @@ function OrdersTableComponent({ orders: initialOrders, currentPage, totalCount, 
     }
   }
 
+  if (!orders) return <div>Loading...</div>;
   if (orders.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
@@ -80,7 +83,7 @@ function OrdersTableComponent({ orders: initialOrders, currentPage, totalCount, 
           </TableRow>
         </TableHeader>
         <TableBody>
-          {orders.map((order) => (
+          {orders.map((order: OrderWithDetails) => (
             <TableRow key={order.id}>
               <TableCell className="font-mono text-xs">
                 {order.id.slice(0, 8)}

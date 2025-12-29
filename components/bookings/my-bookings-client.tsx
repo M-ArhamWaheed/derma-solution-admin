@@ -1,5 +1,6 @@
 "use client"
 import React, { useReducer } from "react"
+import useSWR from 'swr'
 import { Button } from "@/components/ui/button"
 import { RefreshCcw } from "lucide-react"
 
@@ -12,13 +13,15 @@ function tabReducer(state: { activeTab: "Upcoming" | "Previous" }, action: { typ
   }
 }
 
+
 interface Props {
-  upcoming: any[]
-  previous: any[]
+  customerId: string
 }
 
-export default function MyBookingsClient({ upcoming, previous }: Props) {
+export default function MyBookingsClient({ customerId }: Props) {
   const [state, dispatch] = useReducer(tabReducer, { activeTab: "Upcoming" })
+  const fetcher = (url: string) => fetch(url).then(res => res.json())
+  const { data, error, isLoading } = useSWR(`/api/orders/customer/${encodeURIComponent(customerId)}`, fetcher, { refreshInterval: 5000 })
 
   function formatDate(dateStr: string) {
     try {
@@ -28,6 +31,16 @@ export default function MyBookingsClient({ upcoming, previous }: Props) {
       return dateStr
     }
   }
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error loading bookings.</div>;
+  const orders = data || [];
+  function toDate(o: any) {
+    return new Date(`${o.booking_date}T${o.booking_time || '00:00:00'}`)
+  }
+  const now = new Date()
+  const upcoming = orders.filter((o: any) => (o.status === 'pending' || o.status === 'confirmed') && toDate(o) >= now).sort((a: any, b: any) => toDate(a).getTime() - toDate(b).getTime())
+  const previous = orders.filter((o: any) => !(o.status === 'pending' || o.status === 'confirmed') || toDate(o) < now).sort((a: any, b: any) => toDate(b).getTime() - toDate(a).getTime())
 
   return (
     <>
@@ -63,7 +76,7 @@ export default function MyBookingsClient({ upcoming, previous }: Props) {
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-xl font-semibold">Upcoming ({upcoming.length})</h2>
               </div>
-              {upcoming.map((upcomingOrder, idx) => (
+              {upcoming.map((upcomingOrder: any, idx: number) => (
                 <section key={idx} className="bg-muted rounded-xl shadow p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between mb-6">
                   <div className="flex-1 min-w-0">
                     <div className="mb-2">
@@ -80,9 +93,8 @@ export default function MyBookingsClient({ upcoming, previous }: Props) {
                       <Button variant="ghost" className="border border-input bg-background hover:bg-muted">Cancel</Button>
                       <Button
                         variant="outline"
-                        className="flex items-center gap-2 cursor-pointer"
+                        className="flex items-center gap-2"
                         onClick={() => {
-                          // Redirect to service page with reschedule param
                           if (upcomingOrder?.service?.slug && upcomingOrder?.id) {
                             window.location.href = `/services/${upcomingOrder.service.slug}?reschedule=${upcomingOrder.id}`;
                           }
@@ -104,7 +116,7 @@ export default function MyBookingsClient({ upcoming, previous }: Props) {
               <span className="text-lg text-muted-foreground">You have no previous bookings.</span>
             </div>
           ) : (
-            previous.map((booking, idx) => (
+            previous.map((booking: any, idx: number) => (
               <div key={idx} className="bg-white rounded-xl shadow p-6 flex items-center gap-6 mb-4">
                 <div className="flex-1">
                   <h3 className="font-semibold">{formatDate(booking.booking_date)}</h3>

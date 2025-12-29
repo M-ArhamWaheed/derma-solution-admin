@@ -63,7 +63,9 @@ export default async function MyBookingsPage() {
           <h1 className="text-4xl font-bold tracking-tight">My Bookings</h1>
         </section>
 
-        <MyBookingsClient upcoming={upcoming} previous={previous} />
+        {authUser && (
+          <MyBookingsClient customerId={authUser.id} />
+        )}
       </main>
     </>
   )

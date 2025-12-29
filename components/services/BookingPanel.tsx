@@ -105,12 +105,18 @@ export default function BookingPanel({ service, rescheduleOrder }: { service: an
       const { error } = await supabase
         .from("orders")
         .update({
+          service_id: service.id,
+          service_title: service.name,
           booking_date: selectedDate,
           booking_time: selectedTime,
           session_count: sessionCount,
           status: "pending"
         })
         .eq("id", rescheduleOrder.id)
+      // Invalidate order cache for both customer and admin via API
+      try {
+        await fetch('/api/admin/clear-orders-cache', { method: 'POST' });
+      } catch {}
       setLoading(false)
       if (!error) {
         toast({
