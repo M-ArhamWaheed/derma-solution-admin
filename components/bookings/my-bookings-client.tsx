@@ -78,7 +78,18 @@ export default function MyBookingsClient({ upcoming, previous }: Props) {
                     <div className="text-base font-semibold text-right">{new Date(`${upcomingOrder.booking_date}T${upcomingOrder.booking_time || '00:00:00'}`).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</div>
                     <div className="flex gap-2 bottom-4">
                       <Button variant="ghost" className="border border-input bg-background hover:bg-muted">Cancel</Button>
-                      <Button variant="outline" className="flex items-center gap-2"><RefreshCcw className="w-4 h-4 mr-1" /> Reschedule</Button>
+                      <Button
+                        variant="outline"
+                        className="flex items-center gap-2 cursor-pointer"
+                        onClick={() => {
+                          // Redirect to service page with reschedule param
+                          if (upcomingOrder?.service?.slug && upcomingOrder?.id) {
+                            window.location.href = `/services/${upcomingOrder.service.slug}?reschedule=${upcomingOrder.id}`;
+                          }
+                        }}
+                      >
+                        <RefreshCcw className="w-4 h-4 mr-1" /> Reschedule
+                      </Button>
                     </div>
                   </div>
                 </section>

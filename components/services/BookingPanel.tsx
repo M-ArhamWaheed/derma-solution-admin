@@ -1,12 +1,14 @@
 "use client"
 import React, { useState, useEffect } from "react"
+import { useToast } from "@/hooks/use-toast"
 import ServiceDateSelector from "@/components/services/ServiceDateSelector"
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 
-export default function BookingPanel({ service }: { service: any }) {
+export default function BookingPanel({ service, rescheduleOrder }: { service: any, rescheduleOrder?: any }) {
   const router = useRouter()
+  const { toast } = useToast();
   const defaultPackages = ["1 session", "3 sessions", "6 sessions", "10 sessions"]
   const parseServicePackages = (raw: any) : string[] => {
     if (!raw) return defaultPackages
@@ -25,9 +27,9 @@ export default function BookingPanel({ service }: { service: any }) {
     return defaultPackages
   }
   const servicePackages: string[] = parseServicePackages(service?.session_options)
-  const [selectedPackage, setSelectedPackage] = useState<string>(servicePackages[0] || "1 session")
-  const [selectedDate, setSelectedDate] = useState<string | null>(null)
-  const [selectedTime, setSelectedTime] = useState<string | null>(null)
+  const [selectedPackage, setSelectedPackage] = useState<string>(rescheduleOrder?.session_count ? `${rescheduleOrder.session_count} session${rescheduleOrder.session_count > 1 ? 's' : ''}` : (servicePackages[0] || "1 session"))
+  const [selectedDate, setSelectedDate] = useState<string | null>(rescheduleOrder?.booking_date || null)
+  const [selectedTime, setSelectedTime] = useState<string | null>(rescheduleOrder?.booking_time || null)
   const [userInteracted, setUserInteracted] = useState(false)
   const [loading, setLoading] = useState(false)
 
@@ -41,8 +43,9 @@ export default function BookingPanel({ service }: { service: any }) {
     return
   }, [servicePackages, selectedPackage])
 
-  // restore selections from pendingBooking if user is returning from confirm page
+  // restore selections from pendingBooking if user is returning from confirm page (only if not rescheduling)
   useEffect(() => {
+    if (rescheduleOrder) return;
     try {
       const raw = localStorage.getItem('pendingBooking')
       if (!raw) return
@@ -60,7 +63,7 @@ export default function BookingPanel({ service }: { service: any }) {
       // ignore parse errors
     }
     return
-  }, [service?.id, servicePackages, userInteracted])
+  }, [service?.id, servicePackages, userInteracted, rescheduleOrder])
 
   const basePrice = Number(service?.base_price ?? 0)
   const getSessionCount = (label: string) => {
@@ -83,7 +86,49 @@ export default function BookingPanel({ service }: { service: any }) {
   const formatPrice = (v: number) => `£${v.toFixed(2)}`
 
   const handleBook = async () => {
-    // save pending booking to localStorage and redirect to signup if not logged in
+    if (!selectedDate || !selectedTime) {
+      alert("Please select a date and time before booking")
+      return
+    }
+    setLoading(true)
+    const supabase = createClient()
+    const { data: userData } = await supabase.auth.getUser()
+    if (!userData?.user) {
+      setLoading(false)
+      router.push("/signup")
+      return
+    }
+
+    if (rescheduleOrder) {
+      // Update the existing order
+      const sessionCount = parseInt(selectedPackage)
+      const { error } = await supabase
+        .from("orders")
+        .update({
+          booking_date: selectedDate,
+          booking_time: selectedTime,
+          session_count: sessionCount,
+          status: "pending"
+        })
+        .eq("id", rescheduleOrder.id)
+      setLoading(false)
+      if (!error) {
+        toast({
+          title: "Booking updated!",
+          description: "Your booking has been updated successfully.",
+        });
+        setTimeout(() => router.push("/my-bookings"), 1200);
+      } else {
+        toast({
+          title: "Failed to update booking",
+          description: "There was a problem updating your booking. Please try again.",
+          variant: "destructive"
+        });
+      }
+      return
+    }
+
+    // Normal booking flow
     const booking = {
       service_id: service.id,
       service_name: service.name,
@@ -91,21 +136,8 @@ export default function BookingPanel({ service }: { service: any }) {
       date: selectedDate,
       time: selectedTime,
     }
-    if (!booking.date || !booking.time) {
-      alert("Please select a date and time before booking")
-      return
-    }
-
     localStorage.setItem("pendingBooking", JSON.stringify(booking))
-
-    const supabase = createClient()
-    const { data: userData } = await supabase.auth.getUser()
-    if (!userData?.user) {
-      router.push("/signup")
-      return
-    }
-
-    // if logged in, go to confirm-booking flow
+    setLoading(false)
     router.push("/confirm-booking")
   }
 
@@ -173,7 +205,7 @@ export default function BookingPanel({ service }: { service: any }) {
 
       <div className="flex justify-center items-center my-8">
         <Button onClick={handleBook} className="bg-[#333] text-white text-lg font-semibold rounded-full px-10 py-4 shadow-md hover:bg-[#222] transition-all" style={{ minWidth: 320 }} disabled={loading}>
-          {loading ? "Booking..." : "Book Treatment"}
+          {loading ? (rescheduleOrder ? "Updating..." : "Booking...") : (rescheduleOrder ? "Update Your Booking" : "Book Treatment")}
         </Button>
       </div>
     </div>

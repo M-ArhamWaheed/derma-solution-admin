@@ -1,3 +1,4 @@
+
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { Navbar } from "@/components/layout/navbar";
@@ -7,8 +8,9 @@ import ServiceDateSelector from "@/components/services/ServiceDateSelector";
 import BookingPanel from "@/components/services/BookingPanel";
 import { createClient } from "@/lib/supabase/server";
 
-export default async function ServiceDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function ServiceDetailPage({ params, searchParams }: { params: Promise<{ slug: string }>, searchParams?: { reschedule?: string } }) {
   const { slug } = await params;
+  const rescheduleId = searchParams?.reschedule;
 
   const supabase = await createClient();
   const { data: service, error } = await supabase
@@ -17,21 +19,28 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
     .eq("slug", slug)
     .maybeSingle();
 
-  if (error || !service
-    
-  ) return notFound();
+  let rescheduleOrder = null;
+  if (rescheduleId) {
+    const { data: orderData } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("id", rescheduleId)
+      .maybeSingle();
+    rescheduleOrder = orderData || null;
+  }
+
+  if (error || !service) return notFound();
   return (
     <>
       <Navbar user={null} />
       <main className="container mx-auto py-6">
-        
         {/* Book Consultation Heading Section */}
         <section className="max-w-3xl mx-auto mb-6">
           <div className="mb-2">
-          <Link href="/dashboard">
-            <Button variant="ghost">← Back to Dashboard</Button>
-          </Link>
-        </div>
+            <Link href="/dashboard">
+              <Button variant="ghost">← Back to Dashboard</Button>
+            </Link>
+          </div>
           <h1 className="text-4xl font-bold tracking-tight">Book consultation</h1>
         </section>
         {/* Service Card Section */}
@@ -59,7 +68,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
             </div>
           </div>
         </section>
-        <BookingPanel service={service} />
+        <BookingPanel service={service} rescheduleOrder={rescheduleOrder} />
       </main>
     </>
   );

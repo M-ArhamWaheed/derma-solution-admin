@@ -1,6 +1,8 @@
 import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, RefreshCcw, ShoppingBag, Settings, ChevronRight } from "lucide-react";
+import { CalendarDays, ShoppingBag, Settings, ChevronRight } from "lucide-react";
+import dynamic from "next/dynamic";
+const RescheduleButton = dynamic(() => import("@/components/bookings/RescheduleButton"), { ssr: true });
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getOrdersByCustomer } from "@/lib/supabase/queries";
@@ -101,7 +103,9 @@ export default async function BookConsultationPage() {
                 <div className="text-base font-semibold text-right">{new Date(`${upcoming.booking_date}T${upcoming.booking_time}`).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</div>
                 <div className="flex gap-2 bottom-4">
                   <Button variant="ghost" className="border border-input bg-background hover:bg-muted">Cancel</Button>
-                  <Button variant="outline" className="flex items-center gap-2"><RefreshCcw className="w-4 h-4 mr-1" /> Reschedule</Button>
+                  {upcoming?.service?.slug && upcoming?.id && (
+                    <RescheduleButton slug={upcoming.service.slug} orderId={upcoming.id} />
+                  )}
                 </div>
               </>
             ) : (

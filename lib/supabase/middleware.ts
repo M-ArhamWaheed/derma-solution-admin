@@ -89,7 +89,10 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(new URL('/signin', request.url))
     }
     if (userRole !== 'admin') {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
+      // Sign out the user and redirect to signin for a fresh login
+      const signoutUrl = new URL('/auth/signout', request.url)
+      signoutUrl.searchParams.set('redirect', '/signin')
+      return NextResponse.redirect(signoutUrl)
     }
   }
 
