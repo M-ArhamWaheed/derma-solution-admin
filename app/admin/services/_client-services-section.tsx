@@ -117,7 +117,7 @@ export default function ClientServicesSection({ categories }: { categories: Cate
                   <td className="px-4 py-3 text-foreground">{sessions}</td>
                   <td className="px-4 py-3 text-foreground">{times}</td>
                   <td className="px-4 py-3 text-center text-foreground">{service.is_active ? 'Yes' : 'No'}</td>
-                  <td className="px-4 py-3 text-center text-foreground">{service.is_popular ? 'Yes' : 'No'}</td>
+                  <td className="px-4 py-3 text-center text-foreground hidden">{service.is_popular ? 'Yes' : 'No'}</td>
                   <td className="px-4 py-3 text-center relative">
                     <span
                       className="cursor-pointer text-gray-500 hover:text-white"

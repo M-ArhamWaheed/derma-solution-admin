@@ -18,13 +18,13 @@ export default async function OrdersPage({ searchParams }: { searchParams?: Prom
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold font-heading mb-2">Orders</h1>
-        <p className="text-muted-foreground">Manage customer orders and bookings</p>
+        <h1 className="text-3xl font-bold font-heading mb-2">Bookings</h1>
+        <p className="text-muted-foreground">Manage customer bookings</p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>All Orders</CardTitle>
+          <CardTitle>All Bookings</CardTitle>
         </CardHeader>
         <CardContent>
           <Suspense

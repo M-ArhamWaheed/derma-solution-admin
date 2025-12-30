@@ -1,4 +1,3 @@
-import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
 import { RefreshCcw } from "lucide-react";
 import Link from "next/link";
@@ -54,7 +53,6 @@ export default async function MyBookingsPage() {
 
   return (
     <>
-      <Navbar user={user} />
       <main className="container mx-auto py-8">
         <section className="max-w-3xl mx-auto mb-10">
           <div className="flex items-center gap-2 mb-2">

@@ -1,6 +1,5 @@
 "use client"
 
-import { Navbar } from "@/components/layout/navbar";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
@@ -131,7 +130,6 @@ export default function ProfileSettingsPage() {
 
   return (
     <>
-      <Navbar user={profile} />
       <main className="container mx-auto py-8">
         <section className="max-w-3xl mx-auto mb-10">
           <div className="flex items-center gap-2 mb-2">
@@ -170,7 +168,7 @@ export default function ProfileSettingsPage() {
               <div className="flex items-center gap-2">
                 <span className="inline-block w-10 h-10 bg-muted border rounded-lg flex items-center justify-center text-xl">📱</span>
                 <input
-                  type="text"
+                  type="number"
                   className="w-full rounded-lg border px-2 py-1 text-lg text-black font-medium bg-white"
                   value={form.phone}
                   onChange={(e) => handleChange('phone', e.target.value)}

@@ -1,6 +1,4 @@
 "use client";
-
-import { Navbar } from "@/components/layout/navbar";
 import Link from "next/link";
  
 type Order = {
@@ -13,7 +11,6 @@ export default function OrderHistoryPage() {
   const orders: Order[] = [];
   return (
     <>
-      <Navbar user={null} />
       <main className="container mx-auto py-8">
         {/* Back to Account Section */}
         <section className="max-w-3xl mx-auto mb-10">
@@ -27,7 +24,7 @@ export default function OrderHistoryPage() {
         {/* Orders Section */}
         <section className="max-w-3xl mx-auto bg-muted rounded-xl shadow p-8 min-h-[180px] flex items-center justify-center">
           {orders.length === 0 ? (
-            <span className="text-lg text-muted-foreground">No orders found.</span>
+            <span className="text-lg text-muted-foreground">No Bookings found.</span>
           ) : (
             // Render order cards here if orders exist
             orders.map(order => (

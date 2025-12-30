@@ -1,7 +1,6 @@
 import { Suspense } from "react"
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
-import { Navbar } from "@/components/layout/navbar"
 import { HeroSection } from "@/components/dashboard/hero-section"
 import { CategoryServices } from "@/components/dashboard/category-services"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -33,7 +32,6 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen flex flex-col overflow-x-hidden">
-      <Navbar user={profile} />
 
       <main className="flex-1 w-full overflow-x-hidden">
         <HeroSection />

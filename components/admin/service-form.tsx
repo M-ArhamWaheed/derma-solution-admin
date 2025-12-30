@@ -312,7 +312,7 @@ export function ServiceForm({ onServiceSaved, initialValues, categories, onCance
         <input type="checkbox" checked={isActive} onChange={e => setIsActive(e.target.checked)} id="isActive" className="h-4 w-4 rounded border-input" />
         <label htmlFor="isActive" className="font-medium text-foreground">Active</label>
       </div>
-      <div className="flex items-center gap-2 mt-6">
+      <div className="flex items-center gap-2 mt-6 hidden">
         <input type="checkbox" checked={isPopular} onChange={e => setIsPopular(e.target.checked)} id="isPopular" className="h-4 w-4 rounded border-input" />
         <label htmlFor="isPopular" className="font-medium text-foreground">Popular</label>
       </div>

@@ -3,6 +3,7 @@ import { Poppins, Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
+import NavbarWrapper from "@/components/layout/navbar-wrapper";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -44,6 +45,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+            <NavbarWrapper />
             {children}
             <Toaster />
           </ThemeProvider>

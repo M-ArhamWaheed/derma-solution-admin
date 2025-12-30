@@ -1,12 +1,12 @@
 "use client"
 import React, { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { Navbar } from "@/components/layout/navbar"
 import { useToast } from "@/hooks/use-toast"
 import { parseBookingDateTime } from '@/lib/utils'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
+import { Navbar } from "@/components/layout/navbar"
 
 export default function ConfirmBookingPage() {
   const router = useRouter()

@@ -1,7 +1,6 @@
 
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import ServiceDateSelector from "@/components/services/ServiceDateSelector";
@@ -33,7 +32,6 @@ export default async function ServiceDetailPage({ params, searchParams }: { para
   if (error || !service) return notFound();
   return (
     <>
-      <Navbar user={null} />
       <main className="container mx-auto py-6">
         {/* Book Consultation Heading Section */}
         <section className="max-w-3xl mx-auto mb-6">

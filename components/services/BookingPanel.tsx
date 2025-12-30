@@ -164,7 +164,7 @@ export default function BookingPanel({ service, rescheduleOrder }: { service: Se
           console.error('Reschedule failed', { status: res.status, body })
           toast({ title: 'Reschedule Error', description: body?.error || 'Unknown error', variant: 'destructive' })
         } else {
-          toast({ title: 'Reschedule Success', description: body?.data ? `Updated booking (id: ${body.data.id})` : 'Updated booking' })
+          toast({ title: 'Reschedule Success', description: body?.data ? `Updated booking (id: ${body.data.service_title})` : 'Updated booking' })
           // redirect to my-bookings after showing the toast briefly
           setTimeout(() => router.push('/my-bookings'), 1200)
         }

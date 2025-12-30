@@ -1,4 +1,3 @@
-import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, ShoppingBag, Settings, ChevronRight } from "lucide-react";
 import dynamic from "next/dynamic";
@@ -56,7 +55,6 @@ export default async function BookConsultationPage() {
 
   return (
     <>
-      <Navbar user={user} />
       <main className="container mx-auto py-8">
         
         {/* Account Greeting Section */}
@@ -115,7 +113,7 @@ export default async function BookConsultationPage() {
               <span className="bg-muted p-2 rounded-full"><ShoppingBag className="w-6 h-6 text-primary" /></span>
               <div className="flex-1 min-w-0">
                 <div className="font-semibold text-lg ">My Order History</div>
-                <div className="text-muted-foreground text-sm">Manage recent orders and view previous purchases</div>
+                <div className="text-muted-foreground text-sm">Manage recent Bookings and view previous purchases</div>
               </div>
               <ChevronRight className="w-5 h-5 text-muted-foreground" />
             </Link>
