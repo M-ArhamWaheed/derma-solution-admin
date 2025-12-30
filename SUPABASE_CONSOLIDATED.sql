@@ -106,42 +106,6 @@ CREATE POLICY "Admins can read all profiles"
   ON public.profiles FOR SELECT
   USING (public.is_admin());
 
--- Ensure `address` column exists on profiles (idempotent)
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns
-    WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'address'
-  ) THEN
-    ALTER TABLE public.profiles ADD COLUMN address TEXT;
-  END IF;
-END
-$$;
-
--- Ensure `gender` column exists on profiles (idempotent)
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns
-    WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'gender'
-  ) THEN
-    ALTER TABLE public.profiles ADD COLUMN gender TEXT;
-  END IF;
-END
-$$;
-
--- Ensure `phone` column exists on profiles (idempotent)
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns
-    WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'phone'
-  ) THEN
-    ALTER TABLE public.profiles ADD COLUMN phone TEXT;
-  END IF;
-END
-$$;
-
 -- CATEGORIES
 CREATE TABLE IF NOT EXISTS public.categories (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -239,12 +203,6 @@ CREATE POLICY "Admins can update all orders"
   ON public.orders FOR UPDATE
   USING (public.is_admin());
 
--- Allow customers to update their own orders (idempotent)
-CREATE POLICY IF NOT EXISTS "Customers can update own orders"
-  ON public.orders FOR UPDATE
-  USING (auth.uid() = customer_id)
-  WITH CHECK (auth.uid() = customer_id);
-
 -- Ensure `address` column exists (idempotent)
 DO $$
 BEGIN
@@ -335,6 +293,43 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW
   EXECUTE FUNCTION public.handle_new_user();
+
+
+-- Ensure `address` column exists on profiles (idempotent)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'address'
+  ) THEN
+    ALTER TABLE public.profiles ADD COLUMN address TEXT;
+  END IF;
+END
+$$;
+
+-- Ensure `gender` column exists on profiles (idempotent)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'gender'
+  ) THEN
+    ALTER TABLE public.profiles ADD COLUMN gender TEXT;
+  END IF;
+END
+$$;
+
+-- Ensure `phone` column exists on profiles (idempotent)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'phone'
+  ) THEN
+    ALTER TABLE public.profiles ADD COLUMN phone TEXT;
+  END IF;
+END
+$$;
 
 -- ============================================
 -- PERFORMANCE INDEXES (from SUPABASE_INDEXES.sql)
@@ -556,3 +551,12 @@ WITH CHECK (
   bucket_id IN ('category-images', 'service-images')
 );
 -- === END: Nuclear Option script ===
+
+DROP POLICY IF EXISTS "Customers can update own orders" ON public.orders;
+
+CREATE POLICY "Customers can update own orders"
+  ON public.orders FOR UPDATE
+  TO authenticated
+  USING (auth.uid() = customer_id)
+  WITH CHECK (auth.uid() = customer_id);
+  

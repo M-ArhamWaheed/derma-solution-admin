@@ -241,6 +241,23 @@ export async function getRecentOrders(limit: number = 10) {
   return data as OrderWithDetails[]
 }
 
+export async function getOrderById(id: string) {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('orders')
+    .select(`
+      *,
+      service:services(*, category:categories(*)),
+      customer:profiles(*)
+    `)
+    .eq('id', id)
+    .maybeSingle()
+
+  if (error) throw error
+  return data as any
+}
+
 // Users (profiles) - paginated
 export async function getUsersPaginated(page: number = 1, pageSize: number = 20, useCache: boolean = true, q: string | null = null) {
   const supabase = await createClient()

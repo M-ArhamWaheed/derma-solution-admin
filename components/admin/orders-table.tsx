@@ -13,6 +13,17 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu"
+import {
+  Sheet,
+  SheetContent,
+} from "@/components/ui/sheet"
+import OrderEditCard from "@/components/admin/order-edit-card"
 import { Eye } from "lucide-react"
 import { format } from "date-fns"
 import { parseBookingDateTime } from '@/lib/utils'
@@ -28,6 +39,7 @@ function OrdersTableComponent({ currentPage, totalCount, pageSize }: OrdersTable
   const fetcher = (url: string) => fetch(url).then(res => res.json())
   const { data: orders, mutate } = useSWR('/api/orders', fetcher, { refreshInterval: 5000 })
   const [showDropdown, setShowDropdown] = useState<string | null>(null)
+  const [selectedOrder, setSelectedOrder] = useState<OrderWithDetails | null>(null)
   const handleConfirm = async (orderId: string) => {
     const res = await fetch(`/api/orders/${orderId}`, {
       method: 'PATCH',
@@ -72,12 +84,12 @@ function OrdersTableComponent({ currentPage, totalCount, pageSize }: OrdersTable
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Order ID</TableHead>
             <TableHead>Customer</TableHead>
             <TableHead>Service</TableHead>
             <TableHead>Sessions</TableHead>
             <TableHead>Address</TableHead>
             <TableHead>Booking Date</TableHead>
+            <TableHead>Booking Time</TableHead>
             <TableHead>Amount</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Actions</TableHead>
@@ -86,9 +98,6 @@ function OrdersTableComponent({ currentPage, totalCount, pageSize }: OrdersTable
         <TableBody>
           {orders.map((order: OrderWithDetails) => (
             <TableRow key={order.id}>
-              <TableCell className="font-mono text-xs">
-                {order.id.slice(0, 8)}
-              </TableCell>
               <TableCell className="font-medium">
                 <div>
                   <div>
@@ -106,6 +115,9 @@ function OrdersTableComponent({ currentPage, totalCount, pageSize }: OrdersTable
               <TableCell className="text-sm text-muted-foreground">{order.address || '-'}</TableCell>
               <TableCell>
                 {format(parseBookingDateTime(order.booking_date, order.booking_time || '00:00:00'), "MMM dd, yyyy")}
+              </TableCell>
+              <TableCell>
+                {format(parseBookingDateTime(order.booking_date, order.booking_time || '00:00:00'), 'p')}
               </TableCell>
               <TableCell>£{order.total_amount.toFixed(2)}</TableCell>
               <TableCell>
@@ -131,14 +143,33 @@ function OrdersTableComponent({ currentPage, totalCount, pageSize }: OrdersTable
                 )}
               </TableCell>
               <TableCell className="text-right">
-                <Button variant="ghost" size="icon">
-                  <Eye className="h-4 w-4" />
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onSelect={() => setSelectedOrder(order)}>
+                      Edit
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+      <Sheet open={!!selectedOrder} onOpenChange={(open) => { if (!open) setSelectedOrder(null) }}>
+        {selectedOrder && (
+          <SheetContent side="right">
+            <OrderEditCard order={selectedOrder} onSaved={() => {
+              mutate()
+              setSelectedOrder(null)
+            }} />
+          </SheetContent>
+        )}
+      </Sheet>
       {/* Simple pagination controls (server rendered links) */}
       {typeof currentPage !== 'undefined' && typeof totalCount !== 'undefined' && (
         <div className="flex items-center justify-between p-4">
