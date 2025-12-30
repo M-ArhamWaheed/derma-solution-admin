@@ -23,6 +23,7 @@ import {
   Sheet,
   SheetContent,
 } from "@/components/ui/sheet"
+import { SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet"
 import OrderEditCard from "@/components/admin/order-edit-card"
 import { Eye } from "lucide-react"
 import { format } from "date-fns"
@@ -163,6 +164,10 @@ function OrdersTableComponent({ currentPage, totalCount, pageSize }: OrdersTable
       <Sheet open={!!selectedOrder} onOpenChange={(open) => { if (!open) setSelectedOrder(null) }}>
         {selectedOrder && (
           <SheetContent side="right">
+            <SheetHeader>
+              <SheetTitle>Edit booking</SheetTitle>
+              <SheetDescription>Modify date and time for this booking.</SheetDescription>
+            </SheetHeader>
             <OrderEditCard order={selectedOrder} onSaved={() => {
               mutate()
               setSelectedOrder(null)

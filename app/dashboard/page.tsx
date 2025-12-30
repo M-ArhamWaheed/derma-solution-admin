@@ -5,7 +5,6 @@ import { Navbar } from "@/components/layout/navbar"
 import { HeroSection } from "@/components/dashboard/hero-section"
 import { CategoryServices } from "@/components/dashboard/category-services"
 import { Skeleton } from "@/components/ui/skeleton"
-import { ServicesGallery } from "@/components/dashboard/services-gallery"
 import { getCategoriesWithActiveServices } from "@/lib/supabase/queries"
 
 export default async function DashboardPage() {
@@ -54,8 +53,7 @@ export default async function DashboardPage() {
           <CategoryServices categories={categories} />
         </Suspense>
 
-        {/* Services Gallery Section */}
-        <ServicesGallery />
+        {/* Services Gallery is rendered inside CategoryServices; avoid duplicate rendering here */}
 
         {/* <Suspense
           fallback={
