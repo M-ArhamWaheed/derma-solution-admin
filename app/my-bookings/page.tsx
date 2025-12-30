@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getOrdersByCustomer } from "@/lib/supabase/queries";
+import { parseBookingDateTime } from '@/lib/utils'
 import type { Profile } from "@/types";
 import MyBookingsClient from "@/components/bookings/my-bookings-client";
 
@@ -30,7 +31,7 @@ export default async function MyBookingsPage() {
   }
 
   function toDate(o: any) {
-    return new Date(`${o.booking_date}T${o.booking_time || '00:00:00'}`)
+    return parseBookingDateTime(o.booking_date, o.booking_time || '00:00:00')
   }
 
   const now = new Date()
@@ -44,7 +45,7 @@ export default async function MyBookingsPage() {
 
   function formatDate(dateStr: string) {
     try {
-      const d = new Date(dateStr)
+      const d = parseBookingDateTime(dateStr, '00:00:00')
       return d.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })
     } catch {
       return dateStr

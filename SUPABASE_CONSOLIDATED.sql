@@ -239,6 +239,12 @@ CREATE POLICY "Admins can update all orders"
   ON public.orders FOR UPDATE
   USING (public.is_admin());
 
+-- Allow customers to update their own orders (idempotent)
+CREATE POLICY IF NOT EXISTS "Customers can update own orders"
+  ON public.orders FOR UPDATE
+  USING (auth.uid() = customer_id)
+  WITH CHECK (auth.uid() = customer_id);
+
 -- Ensure `address` column exists (idempotent)
 DO $$
 BEGIN

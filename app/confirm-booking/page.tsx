@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Navbar } from "@/components/layout/navbar"
 import { useToast } from "@/hooks/use-toast"
+import { parseBookingDateTime } from '@/lib/utils'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
@@ -131,8 +132,18 @@ export default function ConfirmBookingPage() {
         <h2 className="text-2xl font-semibold mb-4">Confirm Booking</h2>
         <div className="mb-2">Service: <strong>{booking.service_name}</strong></div>
         <div className="mb-2">Package: <strong>{booking.package}</strong></div>
-        <div className="mb-2">Date: <strong>{booking.date}</strong></div>
-        <div className="mb-2">Time: <strong>{booking.time}</strong></div>
+        <div className="mb-2">Date: <strong>{(() => {
+          try {
+            const d = parseBookingDateTime(booking.date, '00:00:00')
+            return d.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' })
+          } catch { return booking.date }
+        })()}</strong></div>
+        <div className="mb-2">Time: <strong>{(() => {
+          try {
+            const dt = parseBookingDateTime(booking.date, booking.time)
+            return dt.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+          } catch { return booking.time }
+        })()}</strong></div>
 
         {needsAuth && !user ? (
           <div className="p-4 bg-yellow-50 border border-yellow-200 rounded">

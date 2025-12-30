@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { format } from "date-fns"
+import { parseBookingDateTime } from '@/lib/utils'
 
 interface RecentOrdersTableProps {
   orders: OrderWithDetails[]
@@ -63,7 +64,7 @@ function RecentOrdersTableComponent({ orders }: RecentOrdersTableProps) {
               </TableCell>
               <TableCell>{order.service.name}</TableCell>
               <TableCell>
-                {format(new Date(order.booking_date), "MMM dd, yyyy")}
+                {format(parseBookingDateTime(order.booking_date, order.booking_time || '00:00:00'), "MMM dd, yyyy")}
               </TableCell>
               <TableCell>£{order.total_amount.toFixed(2)}</TableCell>
               <TableCell>

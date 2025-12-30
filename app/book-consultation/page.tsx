@@ -2,10 +2,11 @@ import { Navbar } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, ShoppingBag, Settings, ChevronRight } from "lucide-react";
 import dynamic from "next/dynamic";
-const RescheduleButton = dynamic(() => import("@/components/bookings/RescheduleButton"), { ssr: true });
+import UpcomingClient from '@/components/bookings/UpcomingClient'
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getOrdersByCustomer } from "@/lib/supabase/queries";
+import { parseBookingDateTime } from '@/lib/utils'
 import type { Profile } from "@/types";
 
 export default async function BookConsultationPage() {
@@ -32,12 +33,12 @@ export default async function BookConsultationPage() {
     if (orders && orders.length) {
       const now = new Date()
       const candidates = orders.filter((o: any) => {
-        const dt = new Date(`${o.booking_date}T${o.booking_time || '00:00:00'}`)
+        const dt = parseBookingDateTime(o.booking_date, o.booking_time || '00:00:00')
         return (o.status === 'pending' || o.status === 'confirmed') && dt >= now
       })
       candidates.sort((a: any, b: any) => {
-        const ad = new Date(`${a.booking_date}T${a.booking_time || '00:00:00'}`)
-        const bd = new Date(`${b.booking_date}T${b.booking_time || '00:00:00'}`)
+        const ad = parseBookingDateTime(a.booking_date, a.booking_time || '00:00:00')
+        const bd = parseBookingDateTime(b.booking_date, b.booking_time || '00:00:00')
         return ad.getTime() - bd.getTime()
       })
       upcoming = candidates[0]
@@ -46,7 +47,7 @@ export default async function BookConsultationPage() {
 
   function formatDate(dateStr: string) {
     try {
-      const d = new Date(dateStr)
+      const d = parseBookingDateTime(dateStr, '00:00:00')
       return d.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })
     } catch {
       return dateStr
@@ -76,44 +77,27 @@ export default async function BookConsultationPage() {
         </section>
        
         {/* Upcoming Appointment Section */}
-        <section className="bg-muted rounded-xl shadow p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between max-w-3xl mx-auto">
-          <div className="flex-1 min-w-0">
-            <div className="mb-2">
-              <span className="inline-block bg-[#7B61FF] text-white text-xs font-semibold px-3 py-1 rounded-full mb-2">
-                Upcoming
-              </span>
-            </div>
-            {upcoming ? (
-              <>
-                <h2 className="text-2xl font-bold mb-1">{formatDate(upcoming.booking_date)}</h2>
-                <div className="text-muted-foreground text-sm mb-2">{upcoming.service?.category?.name || ''}</div>
-                <div className="text-lg font-medium mb-1">{upcoming.service_title}</div>
-                <div className="text-muted-foreground text-sm mb-4">{upcoming.customer?.first_name} {upcoming.customer?.last_name}</div>
-              </>
-            ) : (
-              <>
+        <section className="bg-muted rounded-xl shadow p-6 md:p-8 max-w-3xl mx-auto">
+          {upcoming ? (
+            <UpcomingClient
+              booking_date={upcoming.booking_date}
+              booking_time={upcoming.booking_time}
+              service={upcoming.service}
+              service_title={upcoming.service_title}
+              customer={upcoming.customer}
+              orderId={upcoming.id}
+            />
+          ) : (
+            <div className="flex flex-col md:flex-row md:items-center justify-between">
+              <div className="flex-1 min-w-0">
                 <h2 className="text-2xl font-bold mb-1">No upcoming appointments</h2>
                 <div className="text-muted-foreground text-sm mb-2">You have no upcoming bookings.</div>
-              </>
-            )}
-          </div>
-          <div className="flex flex-col items-end gap-4 min-w-[180px] mt-4 md:mt-0">
-            {upcoming ? (
-              <>
-                <div className="text-base font-semibold text-right">{new Date(`${upcoming.booking_date}T${upcoming.booking_time}`).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</div>
-                <div className="flex gap-2 bottom-4">
-                  <Button variant="ghost" className="border border-input bg-background hover:bg-muted">Cancel</Button>
-                  {upcoming?.service?.slug && upcoming?.id && (
-                    <RescheduleButton slug={upcoming.service.slug} orderId={upcoming.id} />
-                  )}
-                </div>
-              </>
-            ) : (
-              <div className="flex gap-2 bottom-4">
-                <Button variant="ghost" className="border border-input bg-background hover:bg-muted">Book now</Button>
               </div>
-            )}
-          </div>
+              <div className="flex gap-2 mt-4 md:mt-0">
+               <Link href="/dashboard"><Button variant="ghost" className="border border-input bg-background hover:bg-muted">Book now</Button></Link>
+              </div>
+            </div>
+          )}
         </section>
         {/* Manage Section */}
         <section className="max-w-3xl mx-auto mt-10">

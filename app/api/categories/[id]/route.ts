@@ -18,12 +18,13 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
     const serviceIds: string[] = Array.isArray(servicesData) ? servicesData.map((s: any) => s.id) : []
 
-    if (serviceIds.length > 0) {
+      if (serviceIds.length > 0) {
       // For orders, set service_id to null to preserve order history
-      const { error: ordersErr } = await supabase
+      const { data: nulledOrdersData, error: ordersErr } = await supabase
         .from("orders")
         .update({ service_id: null })
         .in("service_id", serviceIds)
+        .select()
       if (ordersErr) {
         console.error('Error nulling orders.service_id for services in category', ordersErr)
         return NextResponse.json({ error: ordersErr.message, details: { code: ordersErr.code, details: ordersErr.details, hint: ordersErr.hint } }, { status: 500 })

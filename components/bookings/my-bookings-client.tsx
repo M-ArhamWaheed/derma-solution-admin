@@ -3,6 +3,7 @@ import React, { useReducer } from "react"
 import useSWR from 'swr'
 import { Button } from "@/components/ui/button"
 import { RefreshCcw } from "lucide-react"
+import { parseBookingDateTime } from '@/lib/utils'
 
 function tabReducer(state: { activeTab: "Upcoming" | "Previous" }, action: { type: "SET_TAB"; tab: "Upcoming" | "Previous" }) {
   switch (action.type) {
@@ -25,7 +26,7 @@ export default function MyBookingsClient({ customerId }: Props) {
 
   function formatDate(dateStr: string) {
     try {
-      const d = new Date(dateStr)
+      const d = parseBookingDateTime(dateStr, '00:00:00')
       return d.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })
     } catch {
       return dateStr
@@ -36,7 +37,7 @@ export default function MyBookingsClient({ customerId }: Props) {
   if (error) return <div>Error loading bookings.</div>;
   const orders = data || [];
   function toDate(o: any) {
-    return new Date(`${o.booking_date}T${o.booking_time || '00:00:00'}`)
+    return parseBookingDateTime(o.booking_date, o.booking_time)
   }
   const now = new Date()
   const upcoming = orders.filter((o: any) => (o.status === 'pending' || o.status === 'confirmed') && toDate(o) >= now).sort((a: any, b: any) => toDate(a).getTime() - toDate(b).getTime())
@@ -88,7 +89,7 @@ export default function MyBookingsClient({ customerId }: Props) {
                     <div className="text-muted-foreground text-sm mb-4">{upcomingOrder.customer?.first_name} {upcomingOrder.customer?.last_name}</div>
                   </div>
                   <div className="flex flex-col items-end gap-4 min-w-[180px] mt-4 md:mt-0">
-                    <div className="text-base font-semibold text-right">{new Date(`${upcomingOrder.booking_date}T${upcomingOrder.booking_time || '00:00:00'}`).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</div>
+                    <div className="text-base font-semibold text-right">{parseBookingDateTime(upcomingOrder.booking_date, upcomingOrder.booking_time || '00:00:00').toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</div>
                     <div className="flex gap-2 bottom-4">
                       <Button variant="ghost" className="border border-input bg-background hover:bg-muted">Cancel</Button>
                       <Button
@@ -124,7 +125,7 @@ export default function MyBookingsClient({ customerId }: Props) {
                   <div className="text-muted-foreground text-sm">{booking.customer?.first_name} {booking.customer?.last_name}</div>
                 </div>
                 <div className="text-right">
-                  <div className="font-semibold">{new Date(`${booking.booking_date}T${booking.booking_time || '00:00:00'}`).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</div>
+                  <div className="font-semibold">{parseBookingDateTime(booking.booking_date, booking.booking_time || '00:00:00').toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</div>
                   <div className="text-sm text-muted-foreground">{booking.status}</div>
                 </div>
               </div>

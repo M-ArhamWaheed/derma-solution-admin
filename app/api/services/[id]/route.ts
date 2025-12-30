@@ -27,7 +27,11 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   try {
     console.info('DELETE /api/services/[id] called', { id })
     // Preserve orders history by nulling service reference
-    const { error: ordersErr } = await supabase.from("orders").update({ service_id: null }).eq("service_id", id)
+    const { data: nulledOrdersData, error: ordersErr } = await supabase
+      .from("orders")
+      .update({ service_id: null })
+      .eq("service_id", id)
+      .select()
     if (ordersErr) {
       console.error('Error nulling orders.service_id before deleting service', { id, ordersErr })
       return NextResponse.json({ error: ordersErr.message, details: { code: ordersErr.code, details: ordersErr.details, hint: ordersErr.hint } }, { status: 500 })

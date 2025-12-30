@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Eye } from "lucide-react"
 import { format } from "date-fns"
+import { parseBookingDateTime } from '@/lib/utils'
 
 interface OrdersTableProps {
   orders: OrderWithDetails[]
@@ -104,7 +105,7 @@ function OrdersTableComponent({ currentPage, totalCount, pageSize }: OrdersTable
               <TableCell className="font-medium">{order.session_count} {order.session_count === 1 ? 'session' : 'sessions'}</TableCell>
               <TableCell className="text-sm text-muted-foreground">{order.address || '-'}</TableCell>
               <TableCell>
-                {format(new Date(order.booking_date), "MMM dd, yyyy")}
+                {format(parseBookingDateTime(order.booking_date, order.booking_time || '00:00:00'), "MMM dd, yyyy")}
               </TableCell>
               <TableCell>£{order.total_amount.toFixed(2)}</TableCell>
               <TableCell>

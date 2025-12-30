@@ -42,6 +42,7 @@ export default function BookingPanel({ service, rescheduleOrder }: { service: Se
   const [selectedTime, setSelectedTime] = useState<string | null>(rescheduleOrder?.booking_time || null)
   const [userInteracted, setUserInteracted] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [lastApiResponse, setLastApiResponse] = useState<any>(null)
 
   // receive selection updates from ServiceDateSelector
   useEffect(() => {
@@ -101,9 +102,20 @@ export default function BookingPanel({ service, rescheduleOrder }: { service: Se
       return
     }
     setLoading(true)
+    // Prepare booking payload early so we can persist it for unauthenticated users
+    const booking = {
+      service_id: service.id,
+      service_name: service.name,
+      package: selectedPackage,
+      date: selectedDate,
+      time: selectedTime,
+    }
+
     const supabase = createClient()
     const { data: userData } = await supabase.auth.getUser()
     if (!userData?.user) {
+      // Persist pending booking so the auth flow can resume to confirmation
+      try { localStorage.setItem("pendingBooking", JSON.stringify(booking)) } catch {}
       setLoading(false)
       router.push("/signup")
       return
@@ -117,9 +129,9 @@ export default function BookingPanel({ service, rescheduleOrder }: { service: Se
       const totalAmount = Math.round((unitPrice * sessionCount) * 100) / 100
 
       // Update the existing order with new date, time, session count, pricing, and set status to pending
-      const { error } = await supabase
-        .from("orders")
-        .update({
+      // Perform update on server-side API to avoid client/RLS issues
+      try {
+        const payload = {
           service_id: service.id,
           service_title: service.name,
           booking_date: selectedDate,
@@ -128,9 +140,38 @@ export default function BookingPanel({ service, rescheduleOrder }: { service: Se
           unit_price: unitPrice,
           discount_percent: discountPercent,
           total_amount: totalAmount,
-          status: "pending"
+          status: "pending",
+        }
+
+        const res = await fetch(`/api/orders/${rescheduleOrder.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          // Ensure cookies (auth session) are forwarded so server can perform the update under the user's session
+          credentials: 'same-origin',
         })
-        .eq("id", rescheduleOrder.id)
+
+        const body = await res.json()
+        setLastApiResponse(body)
+
+        // Debug logs for troubleshooting
+        console.debug('reschedule response', { status: res.status, body })
+
+        // Treat API-level success/failure according to the JSON body.
+        // The server may return HTTP 200 with success: false (e.g. no rows updated),
+        // so checking only `res.ok` can show misleading success toasts.
+        if (!res.ok || !body?.success) {
+          console.error('Reschedule failed', { status: res.status, body })
+          toast({ title: 'Reschedule Error', description: body?.error || 'Unknown error', variant: 'destructive' })
+        } else {
+          toast({ title: 'Reschedule Success', description: body?.data ? `Updated booking (id: ${body.data.id})` : 'Updated booking' })
+          // redirect to my-bookings after showing the toast briefly
+          setTimeout(() => router.push('/my-bookings'), 1200)
+        }
+      } catch (err) {
+        console.error('Reschedule exception', err)
+        toast({ title: 'Reschedule Error', description: err instanceof Error ? err.message : 'Unknown error', variant: 'destructive' })
+      }
 
       // Clear order cache so both customer and admin see updated order
       try {
@@ -138,30 +179,10 @@ export default function BookingPanel({ service, rescheduleOrder }: { service: Se
       } catch { }
 
       setLoading(false)
-      if (!error) {
-        toast({
-          title: "Booking rescheduled!",
-          description: "Your booking has been updated and is pending admin confirmation.",
-        });
-        setTimeout(() => router.push("/my-bookings"), 1200);
-      } else {
-        toast({
-          title: "Failed to reschedule booking",
-          description: "There was a problem updating your booking. Please try again.",
-          variant: "destructive"
-        });
-      }
       return
     }
 
     // Normal booking flow
-    const booking = {
-      service_id: service.id,
-      service_name: service.name,
-      package: selectedPackage,
-      date: selectedDate,
-      time: selectedTime,
-    }
     localStorage.setItem("pendingBooking", JSON.stringify(booking))
     setLoading(false)
     router.push("/confirm-booking")
@@ -234,6 +255,13 @@ export default function BookingPanel({ service, rescheduleOrder }: { service: Se
           {loading ? (rescheduleOrder ? "Updating..." : "Booking...") : (rescheduleOrder ? "Update Your Booking" : "Book Treatment")}
         </Button>
       </div>
+
+        {process.env.NODE_ENV !== 'production' && lastApiResponse && (
+          <div className="max-w-3xl mx-auto mt-4 p-3 rounded-md bg-red-50 text-sm text-red-900">
+            <div className="font-medium mb-2">API Response (dev)</div>
+            <pre className="whitespace-pre-wrap break-words text-xs max-h-48 overflow-auto">{JSON.stringify(lastApiResponse, null, 2)}</pre>
+          </div>
+        )}
     </div>
   )
 }

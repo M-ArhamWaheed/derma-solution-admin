@@ -54,18 +54,28 @@ export async function POST(req: NextRequest) {
       return s.replace(/(\d+)(st|nd|rd|th)/, "$1")
     }
 
+    function toLocalISO(d: Date) {
+      const pad = (n: number) => String(n).padStart(2, '0')
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+    }
+
     function parseBookingDate(raw: any) {
       if (!raw) return null
+      // If already an ISO YYYY-MM-DD string, return as-is
+      if (typeof raw === 'string') {
+        const isoMatch = raw.match(/^\d{4}-\d{2}-\d{2}$/)
+        if (isoMatch) return raw
+      }
       if (raw instanceof Date) {
         const d = raw as Date
-        return d.toISOString().split('T')[0]
+        return toLocalISO(d)
       }
       let str = String(raw)
       str = str.replace(/^\w{3},\s*/,'') // remove weekday like "Mon, "
       str = normalizeOrdinal(str)
       const parsed = new Date(str)
       if (isNaN(parsed.getTime())) return null
-      return parsed.toISOString().split('T')[0]
+      return toLocalISO(parsed)
     }
 
     function parseBookingTime(raw: any) {
