@@ -20,6 +20,8 @@ interface ServicesTableProps {
 }
 
 function ServicesTableComponent({ services }: ServicesTableProps) {
+  const [showActions, setShowActions] = useState<string | null>(null)
+  
   if (services.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
@@ -27,8 +29,6 @@ function ServicesTableComponent({ services }: ServicesTableProps) {
       </div>
     )
   }
-
-  const [showActions, setShowActions] = useState<string | null>(null)
   return (
     <div className="rounded-md border">
       <Table>

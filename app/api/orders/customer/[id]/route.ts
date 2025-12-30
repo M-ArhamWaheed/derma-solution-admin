@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getOrdersByCustomer } from '@/lib/supabase/queries';
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const customerId = params.id;
+    const { id: customerId } = await params;
     if (!customerId) {
       return NextResponse.json({ error: 'Missing customer id' }, { status: 400 });
     }

@@ -5,21 +5,31 @@ import ServiceDateSelector from "@/components/services/ServiceDateSelector"
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
+import type { Service, Order, Json } from "@/types"
 
-export default function BookingPanel({ service, rescheduleOrder }: { service: any, rescheduleOrder?: any }) {
+export default function BookingPanel({ service, rescheduleOrder }: { service: Service, rescheduleOrder?: Order | null }) {
   const router = useRouter()
   const { toast } = useToast();
   const defaultPackages = ["1 session", "3 sessions", "6 sessions", "10 sessions"]
-  const parseServicePackages = (raw: any) : string[] => {
+  const parseServicePackages = (raw: Json | string | null | undefined): string[] => {
     if (!raw) return defaultPackages
-    if (Array.isArray(raw)) return raw
+    if (Array.isArray(raw)) {
+      // Type guard: ensure all items are strings
+      return raw.every((item: unknown) => typeof item === 'string') ? raw as string[] : defaultPackages
+    }
     try {
       const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw
-      if (Array.isArray(parsed)) return parsed
-      if (parsed && typeof parsed === 'object') {
-        if (Array.isArray(parsed.options)) return parsed.options
+      if (Array.isArray(parsed)) {
+        return parsed.every((item: unknown) => typeof item === 'string') ? parsed as string[] : defaultPackages
+      }
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        if (Array.isArray(parsed.options)) {
+          return parsed.options.every((item: unknown) => typeof item === 'string') ? parsed.options as string[] : defaultPackages
+        }
         // some older shapes might store under 'session_options'
-        if (Array.isArray(parsed.session_options)) return parsed.session_options
+        if (Array.isArray(parsed.session_options)) {
+          return parsed.session_options.every((item: unknown) => typeof item === 'string') ? parsed.session_options as string[] : defaultPackages
+        }
       }
     } catch {
       // fallthrough
@@ -100,8 +110,13 @@ export default function BookingPanel({ service, rescheduleOrder }: { service: an
     }
 
     if (rescheduleOrder) {
-      // Update the existing order
-      const sessionCount = parseInt(selectedPackage)
+      // Calculate session count and pricing for reschedule
+      const sessionCount = getSessionCount(selectedPackage)
+      const discountPercent = Math.round(getDiscount(selectedPackage) * 100)
+      const unitPrice = Math.round((basePrice * (1 - getDiscount(selectedPackage))) * 100) / 100
+      const totalAmount = Math.round((unitPrice * sessionCount) * 100) / 100
+
+      // Update the existing order with new date, time, session count, pricing, and set status to pending
       const { error } = await supabase
         .from("orders")
         .update({
@@ -110,23 +125,28 @@ export default function BookingPanel({ service, rescheduleOrder }: { service: an
           booking_date: selectedDate,
           booking_time: selectedTime,
           session_count: sessionCount,
+          unit_price: unitPrice,
+          discount_percent: discountPercent,
+          total_amount: totalAmount,
           status: "pending"
         })
         .eq("id", rescheduleOrder.id)
-      // Invalidate order cache for both customer and admin via API
+
+      // Clear order cache so both customer and admin see updated order
       try {
         await fetch('/api/admin/clear-orders-cache', { method: 'POST' });
-      } catch {}
+      } catch { }
+
       setLoading(false)
       if (!error) {
         toast({
-          title: "Booking updated!",
-          description: "Your booking has been updated successfully.",
+          title: "Booking rescheduled!",
+          description: "Your booking has been updated and is pending admin confirmation.",
         });
         setTimeout(() => router.push("/my-bookings"), 1200);
       } else {
         toast({
-          title: "Failed to update booking",
+          title: "Failed to reschedule booking",
           description: "There was a problem updating your booking. Please try again.",
           variant: "destructive"
         });
@@ -148,20 +168,20 @@ export default function BookingPanel({ service, rescheduleOrder }: { service: an
   }
 
   // Determine allowed tabs from service.session_options (support legacy array and new object shape)
-  const allowedTabs = (function getAllowed(){
-    try{
+  const allowedTabs = (function getAllowed() {
+    try {
       const raw = service?.session_options
       if (!raw) return undefined
       const parsed = Array.isArray(raw) ? raw : JSON.parse(String(raw))
       if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
         const times = parsed.times_of_day as string[] | undefined
-        if (Array.isArray(times) && times.length>0) return times.map(t => {
+        if (Array.isArray(times) && times.length > 0) return times.map(t => {
           const cap = t.charAt(0).toUpperCase() + t.slice(1).toLowerCase()
-          if (cap === 'Morning' || cap === 'Afternoon' || cap === 'Evening') return cap as 'Morning'|'Afternoon'|'Evening'
-          return cap as 'Morning'|'Afternoon'|'Evening'
+          if (cap === 'Morning' || cap === 'Afternoon' || cap === 'Evening') return cap as 'Morning' | 'Afternoon' | 'Evening'
+          return cap as 'Morning' | 'Afternoon' | 'Evening'
         })
       }
-    }catch{}
+    } catch { }
     return undefined
   })()
 
@@ -204,7 +224,7 @@ export default function BookingPanel({ service, rescheduleOrder }: { service: an
         </div>
       </section>
 
-      <ServiceDateSelector allowedTabs={allowedTabs} onChange={(s: any) => {
+      <ServiceDateSelector allowedTabs={allowedTabs} onChange={(s: { date?: string | null; time?: string | null }) => {
         setSelectedDate(s.date || null)
         setSelectedTime(s.time || null)
       }} />

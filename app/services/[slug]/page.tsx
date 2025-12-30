@@ -8,9 +8,10 @@ import ServiceDateSelector from "@/components/services/ServiceDateSelector";
 import BookingPanel from "@/components/services/BookingPanel";
 import { createClient } from "@/lib/supabase/server";
 
-export default async function ServiceDetailPage({ params, searchParams }: { params: Promise<{ slug: string }>, searchParams?: { reschedule?: string } }) {
+export default async function ServiceDetailPage({ params, searchParams }: { params: Promise<{ slug: string }>, searchParams?: Promise<{ reschedule?: string }> }) {
   const { slug } = await params;
-  const rescheduleId = searchParams?.reschedule;
+  const resolvedSearchParams = await searchParams;
+  const rescheduleId = resolvedSearchParams?.reschedule;
 
   const supabase = await createClient();
   const { data: service, error } = await supabase

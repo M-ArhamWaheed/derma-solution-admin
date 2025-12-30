@@ -11,8 +11,9 @@ async function OrdersList({ page }: { page: number }) {
   )
 }
 
-export default async function OrdersPage({ searchParams }: any) {
-  const page = parseInt(searchParams?.page || "1", 10) || 1
+export default async function OrdersPage({ searchParams }: { searchParams?: Promise<{ page?: string }> }) {
+  const resolvedSearchParams = await searchParams;
+  const page = parseInt(resolvedSearchParams?.page || "1", 10) || 1
 
   return (
     <div className="p-6 space-y-6">
