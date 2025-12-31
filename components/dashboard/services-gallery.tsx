@@ -44,11 +44,11 @@ export function ServicesGallery({ categoryId }: { categoryId?: string | null } =
 						/>
 						<div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors duration-300" />
 						<div className="relative z-10 p-6 flex flex-col justify-end h-full w-full">
-							<h2 className="text-2xl md:text-3xl font-semibold text-white mb-1 drop-shadow-lg">
+							<h2 className="text-2xl md:text-3xl font-semibold text-white mb-1 drop-shadow-lg capitalize">
 								{service.name}
 							</h2>
 							{service.subtitle && (
-								<div className="text-lg text-white mb-6 drop-shadow-lg">
+								<div className="text-lg text-white mb-6 drop-shadow-lg capitalize">
 									{service.subtitle}
 								</div>
 							)}
