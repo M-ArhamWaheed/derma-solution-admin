@@ -222,6 +222,7 @@ export function ServiceForm({ onServiceSaved, initialValues, categories, onCance
           }}
           placeholder="Treatment name"
           required
+          className="capitalize "
         />
       </div>
       {/* Slug is auto-generated; hidden from admin UI */}

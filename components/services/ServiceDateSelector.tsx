@@ -46,7 +46,7 @@ export default function ServiceDateSelector({ onChange, allowedTabs }: { onChang
           <>
             <div className="flex items-center gap-2 mb-4">
               <div className="flex-1">
-                <div className="border rounded-lg bg-background px-4 py-3 flex items-center text-lg font-medium">
+                <div className="border rounded-lg bg-muted px-4 py-3 flex items-center text-lg font-medium">
                   <CalendarDays className="w-5 h-5 mr-2 text-muted-foreground" />
                   <div className="flex-1">
                     {(() => {
@@ -118,7 +118,7 @@ export default function ServiceDateSelector({ onChange, allowedTabs }: { onChang
       {/* Calendar Popup */}
       {state.showCalendar && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-          <div className="bg-muted rounded-2xl shadow-xl p-8 max-w-3xl w-full relative">
+          <div className="bg-white dark:bg-slate-100 rounded-2xl shadow-xl p-8 max-w-3xl w-full relative">
             <button className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted transition" onClick={() => dispatch({ type: "CLOSE_CALENDAR" })}>
               <span className="text-2xl font-bold">×</span>
             </button>

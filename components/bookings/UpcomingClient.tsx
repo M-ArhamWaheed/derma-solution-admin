@@ -22,17 +22,17 @@ export default function UpcomingClient({ booking_date, booking_time, service, se
     <>
       <div className="flex-1 min-w-0">
         <div className="mb-2">
-          <span className="inline-block bg-[#7B61FF] text-white text-xs font-semibold px-3 py-1 rounded-full mb-2">Upcoming</span>
+          <span className="inline-block bg-[#7B61FF] text-white text-xs font-semibold px-3 py-1 rounded-full mb-2 capitalize">Upcoming</span>
         </div>
         <h2 className="text-2xl font-bold mb-1">{dateLabel}</h2>
-        <div className="text-muted-foreground text-sm mb-2">{service?.category?.name || ''}</div>
-        <div className="text-lg font-medium mb-1">{service_title}</div>
-        <div className="text-muted-foreground text-sm mb-4">{customer?.first_name} {customer?.last_name}</div>
+        <div className="text-muted-foreground text-sm mb-2 capitalize">{service?.category?.name || ''}</div>
+        <div className="text-lg font-medium mb-1 capitalize">{service_title}</div>
+        <div className="text-muted-foreground text-sm mb-4 capitalize">{customer?.first_name} {customer?.last_name}</div>
       </div>
       <div className="flex flex-col items-end gap-4 min-w-[180px]  md:mt-0">
         <div className="text-base font-semibold text-right">{timeLabel}</div>
         <div className="flex gap-2 bottom-4">
-          <Button variant="ghost" className="border border-input bg-background hover:bg-muted">Cancel</Button>
+          <Button variant="ghost" className="capitalize border border-input bg-background hover:bg-muted">Cancel</Button>
           {service?.slug && orderId && (
             <RescheduleButton slug={service.slug} orderId={orderId} />
           )}
