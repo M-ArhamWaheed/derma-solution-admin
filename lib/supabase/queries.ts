@@ -344,42 +344,35 @@ export async function getFeaturedReviews() {
 export async function getStats() {
   const supabase = await createClient()
   
-  // Get total customers
-  const { count: totalCustomers, error: customersError } = await supabase
-    .from('profiles')
-    .select('*', { count: 'exact', head: true })
-    .eq('role', 'customer')
-  
-  if (customersError) throw customersError
-  
-  // Get total orders
-  const { count: totalOrders, error: ordersError } = await supabase
-    .from('orders')
-    .select('*', { count: 'exact', head: true })
-  
-  if (ordersError) throw ordersError
-  
-  // Get total categories
-  const { count: totalCategories, error: categoriesError } = await supabase
-    .from('categories')
-    .select('*', { count: 'exact', head: true })
-    .eq('is_active', true)
-  
-  if (categoriesError) throw categoriesError
-  
-  // Get total services
-  const { count: totalServices, error: servicesError } = await supabase
-    .from('services')
-    .select('*', { count: 'exact', head: true })
-    .eq('is_active', true)
-  
-  if (servicesError) throw servicesError
-  
+  // Run count queries in parallel to reduce total latency.
+  const [profilesRes, ordersRes, categoriesRes, servicesRes] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true })
+      .eq('role', 'customer'),
+    supabase
+      .from('orders')
+      .select('*', { count: 'exact', head: true }),
+    supabase
+      .from('categories')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_active', true),
+    supabase
+      .from('services')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_active', true),
+  ])
+
+  if (profilesRes.error) throw profilesRes.error
+  if (ordersRes.error) throw ordersRes.error
+  if (categoriesRes.error) throw categoriesRes.error
+  if (servicesRes.error) throw servicesRes.error
+
   return {
-    totalCustomers: totalCustomers || 0,
-    totalOrders: totalOrders || 0,
-    totalCategories: totalCategories || 0,
-    totalServices: totalServices || 0,
+    totalCustomers: profilesRes.count || 0,
+    totalOrders: ordersRes.count || 0,
+    totalCategories: categoriesRes.count || 0,
+    totalServices: servicesRes.count || 0,
   }
 }
 

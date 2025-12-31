@@ -86,7 +86,7 @@ export default function ServiceDateSelector({ onChange, allowedTabs }: { onChang
                 {timeSlots[selectedTab].map((slot) => (
                   <button
                     key={slot}
-                    className={`rounded-full border px-6 py-2 text-base font-medium transition-all ${selectedTime === slot ? "bg-[#333] text-white" : "bg-background hover:bg-[#222]"}`}
+                    className={`rounded-full border px-6 py-2 text-base font-medium hover:text-white transition-all ${selectedTime === slot ? "bg-[#333] text-white" : "bg-background hover:bg-[#222]"}`}
                     onClick={() => handleTimeSelect(slot)}
                   >
                     {slot}

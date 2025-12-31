@@ -16,18 +16,48 @@ export default async function DashboardPage() {
   // If a logged-in admin visits the dashboard, send them to the admin area.
   let profile = null
   if (user) {
-    const { data: profileData } = await supabase
+    // Fetch profile and categories in parallel; profile is needed for redirect
+    const profilePromise = supabase
       .from("profiles")
       .select("*")
       .eq("id", user.id)
       .maybeSingle()
-    profile = profileData || null
+    const categoriesPromise = getCategoriesWithActiveServices()
+
+    const [profileRes, categories] = await Promise.all([profilePromise, categoriesPromise])
+    profile = profileRes.data || null
     if (profile?.role === "admin") {
       redirect("/admin")
     }
+
+    return (
+      <div className="min-h-screen flex flex-col overflow-x-hidden">
+
+        <main className="flex-1 w-full overflow-x-hidden">
+          <HeroSection />
+
+          {/* Category Buttons directly under hero text */}
+          <Suspense
+            fallback={
+              <div className="container py-8">
+                <div className="flex gap-4">
+                  {[1, 2, 3, 4].map((i) => (
+                    <Skeleton key={i} className="h-10 w-40" />
+                  ))}
+                </div>
+              </div>
+            }
+          >
+            <CategoryServices categories={categories} />
+          </Suspense>
+
+        </main>
+
+      </div>
+    )
   }
 
-  // Load only categories that have at least one active service
+  // If no user, just load categories
   const categories = await getCategoriesWithActiveServices()
 
   return (

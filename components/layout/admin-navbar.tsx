@@ -151,9 +151,7 @@ export function AdminNavbar({ user }: AdminNavbarProps) {
                       {getInitials(user.first_name, user.last_name)}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="hidden md:inline-block font-medium">
-                    {user.first_name}
-                  </span>
+              
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">

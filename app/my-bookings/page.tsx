@@ -1,5 +1,4 @@
-import { Button } from "@/components/ui/button";
-import { RefreshCcw } from "lucide-react";
+// removed unused Button and RefreshCcw imports
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
@@ -14,18 +13,17 @@ export default async function MyBookingsPage() {
   const authUser = userData?.user || null
 
   let user: Profile | null = null
+  let orders: any[] = []
   if (authUser) {
-    const { data: profileData } = await supabase
+    const profilePromise = supabase
       .from('profiles')
       .select('*')
       .eq('id', authUser.id)
       .single()
-    user = profileData || null
-  }
+    const ordersPromise = getOrdersByCustomer(authUser.id)
 
-  let orders: any[] = []
-  if (authUser) {
-    const fetched = await getOrdersByCustomer(authUser.id)
+    const [profileRes, fetched] = await Promise.all([profilePromise, ordersPromise])
+    user = (profileRes.data as Profile) || null
     orders = fetched || []
   }
 

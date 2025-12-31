@@ -13,21 +13,20 @@ export default async function ServiceDetailPage({ params, searchParams }: { para
   const rescheduleId = resolvedSearchParams?.reschedule;
 
   const supabase = await createClient();
-  const { data: service, error } = await supabase
+  // Fetch service and optional reschedule order in parallel to avoid SSR waterfall
+  const servicePromise = supabase
     .from("services")
     .select(`*, category:categories(*)`)
     .eq("slug", slug)
     .maybeSingle();
 
-  let rescheduleOrder = null;
-  if (rescheduleId) {
-    const { data: orderData } = await supabase
-      .from("orders")
-      .select("*")
-      .eq("id", rescheduleId)
-      .maybeSingle();
-    rescheduleOrder = orderData || null;
-  }
+  const orderPromise = rescheduleId
+    ? supabase.from("orders").select("*").eq("id", rescheduleId).maybeSingle()
+    : Promise.resolve({ data: null });
+
+  const [serviceRes, orderRes] = await Promise.all([servicePromise, orderPromise]);
+  const { data: service, error } = serviceRes as any;
+  const rescheduleOrder = (orderRes as any)?.data || null;
 
   if (error || !service) return notFound();
   return (

@@ -12,7 +12,6 @@ export default async function EditOrderPage({ params }: { params: Promise<{ id: 
   return (
     <div className="p-8">
       {/* Render client edit card */}
-      {/* @ts-expect-error Server -> Client passing */}
       <OrderEditCard order={order} />
     </div>
   )

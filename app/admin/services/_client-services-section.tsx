@@ -3,6 +3,7 @@
 "use client"
 
 import { useState, useSyncExternalStore } from "react"
+import Image from 'next/image'
 import { ServiceForm } from "@/components/admin/service-form"
 import type { Category, ServiceWithCategory } from "@/types"
 
@@ -10,7 +11,7 @@ import type { Category, ServiceWithCategory } from "@/types"
 
 export default function ClientServicesSection({ categories }: { categories: Category[] }) {
   // External store for services
-  function subscribe(callback: () => void) {
+  function subscribe() {
     // No real-time updates, so just a dummy unsubscribe
     return () => {}
   }
@@ -110,7 +111,7 @@ export default function ClientServicesSection({ categories }: { categories: Cate
                 <tr key={service.id} className="border-b border-border hover:bg-muted/30 transition-colors">
                   <td className="px-4 py-3 font-semibold text-foreground">{service.name}</td>
                   <td className="px-4 py-3 text-muted-foreground">{categories.find((c) => c.id === service.category_id)?.name || '-'}</td>
-                  <td className="px-4 py-3 text-foreground">{service.thumbnail ? <img src={service.thumbnail} alt="thumb" className="w-12 h-12 object-cover rounded" /> : "-"}</td>
+                  <td className="px-4 py-3 text-foreground">{service.thumbnail ? <Image src={service.thumbnail} alt="thumb" width={48} height={48} className="rounded object-cover" /> : "-"}</td>
                   <td className="px-4 py-3 text-foreground">£{service.base_price}</td>
                   <td className="px-4 py-3 text-foreground">{service.description || "-"}</td>
                   <td className="px-4 py-3 text-foreground">{service.duration_minutes || "-"}</td>

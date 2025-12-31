@@ -1,6 +1,7 @@
 "use client"
 
 import { memo } from "react"
+import Image from 'next/image'
 import type { ServiceWithCategory } from "@/types"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -66,7 +67,7 @@ function ServicesTableComponent({ services }: ServicesTableProps) {
               <TableRow key={service.id}>
                 <TableCell className="font-medium">{service.name}</TableCell>
                 <TableCell>{service.category?.name || "-"}</TableCell>
-                <TableCell>{service.thumbnail ? <img src={service.thumbnail} alt="thumb" className="w-12 h-12 object-cover rounded" /> : "-"}</TableCell>
+                <TableCell>{service.thumbnail ? <Image src={service.thumbnail} alt="thumb" width={48} height={48} className="rounded object-cover" /> : "-"}</TableCell>
                 <TableCell>£{service.base_price?.toFixed ? service.base_price.toFixed(2) : service.base_price}</TableCell>
                 <TableCell>{service.description || "-"}</TableCell>
                 <TableCell>{service.duration_minutes || "-"}</TableCell>

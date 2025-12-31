@@ -38,7 +38,6 @@ export default function SignInPage() {
           </div>
         </div>
       </div>
-
       {/* Right Side - Branding */}
       <div className="hidden lg:flex flex-1 bg-[#333333] items-center justify-center p-8">
         <div className="max-w-md space-y-8 text-center">

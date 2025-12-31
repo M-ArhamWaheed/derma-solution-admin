@@ -148,6 +148,7 @@ export function Navbar({ user, action }: NavbarProps) {
           {/* Right Section - User Menu, Book Consultation & Theme */}
           <div className="flex items-center gap-2 md:gap-3">
             <ThemeToggle />
+             
 
             {user && (
               <DropdownMenu>
@@ -162,9 +163,6 @@ export function Navbar({ user, action }: NavbarProps) {
                         {getInitials(user.first_name, user.last_name)}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="hidden md:inline-block font-medium text-sm">
-                      {user.first_name}
-                    </span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">

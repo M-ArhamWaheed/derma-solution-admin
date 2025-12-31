@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { CalendarDays, ShoppingBag, Settings, ChevronRight } from "lucide-react";
-import dynamic from "next/dynamic";
+// removed unused dynamic import
 import UpcomingClient from '@/components/bookings/UpcomingClient'
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
@@ -14,21 +14,18 @@ export default async function BookConsultationPage() {
   const authUser = userData?.user || null
 
   // Fetch the profile row from the `profiles` table so we can pass a `Profile | null`
-  let user: Profile | null = null
+  let upcoming: any = null
   if (authUser) {
-    const { data: profileData } = await supabase
+    const profilePromise = supabase
       .from('profiles')
       .select('*')
       .eq('id', authUser.id)
       .single()
-    user = profileData || null
-  }
+    const ordersPromise = getOrdersByCustomer(authUser.id)
 
-  let upcoming: any = null
-  let debugOrders: any[] = []
-  if (authUser) {
-    const orders = await getOrdersByCustomer(authUser.id)
-    debugOrders = orders || []
+    const [profileRes, orders] = await Promise.all([profilePromise, ordersPromise])
+    // use local `orders` variable returned from the query
+
     if (orders && orders.length) {
       const now = new Date()
       const candidates = orders.filter((o: any) => {
