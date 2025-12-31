@@ -36,12 +36,12 @@ export function AdminNavbar({ user }: AdminNavbarProps) {
 
   const handleSignOut = async () => {
     const supabase = createClient()
-    await supabase.auth.signOut()
-    toast({
-      title: "Signed out",
-      description: "You have been signed out successfully",
-    })
-    router.push("/dashboard")
+    try { await supabase.auth.signOut() } catch {}
+    try {
+      await fetch('/api/auth/signout', { method: 'POST', credentials: 'same-origin' })
+    } catch {}
+    toast({ title: "Signed out", description: "You have been signed out successfully" })
+    router.push('/dashboard')
     router.refresh()
   }
 

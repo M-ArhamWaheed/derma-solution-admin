@@ -123,7 +123,6 @@ export default function ConfirmBookingPage() {
   if (!booking) return <div className="p-8">No pending booking found.</div>
   return (
     <>
-      
       <div className="max-w-2xl mx-auto p-8">
       <div className="mb-4">
         <Button variant="ghost" onClick={() => router.push(serviceDetails?.slug ? `/services/${serviceDetails.slug}` : '/services')}>← Back to Services</Button>

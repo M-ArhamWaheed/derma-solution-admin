@@ -70,11 +70,21 @@ export function SignUpForm() {
 
     try {
       const supabase = createClient()
+
+      // If the user is currently in a booking flow, ensure the
+      // confirmation email (if used) redirects back to the confirm page.
+      let emailRedirectTo = `${window.location.origin}/dashboard`
+      let hasPending = false
+      try {
+        hasPending = typeof window !== 'undefined' && !!localStorage.getItem('pendingBooking')
+      } catch {}
+      if (hasPending) emailRedirectTo = `${window.location.origin}/confirm-booking`
+
       const payload = {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`,
+          emailRedirectTo,
           data: {
             role: 'customer',
             first_name: firstName,
@@ -102,24 +112,29 @@ export function SignUpForm() {
       }
 
       if (data.user) {
-        toast({
-          title: "Success",
-          description: "Account created! Redirecting...",
-        })
+        toast({ title: "Success", description: "Account created! Redirecting..." })
 
-        // If there was a pending booking, send user to sign in so they
-        // can authenticate before confirming the booking.
-        if (typeof window !== 'undefined' && localStorage.getItem('pendingBooking')) {
-          try {
-            localStorage.setItem('prefillEmail', email)
-          } catch {}
-          router.push('/signin')
+        // If the signup returned a logged-in user and there is a pending
+        // booking, resume the booking confirmation directly.
+        if (hasPending) {
+          try { localStorage.removeItem('prefillEmail') } catch {}
+          router.push('/confirm-booking')
           router.refresh()
           return
         }
 
-        router.push("/dashboard")
+        router.push('/dashboard')
         router.refresh()
+      }
+
+      // If the signup did not produce an immediate authenticated session
+      // (e.g. email confirmation required), fall back to sending the user
+      // to sign in so they can authenticate and resume the pending booking.
+      if (hasPending) {
+        try { localStorage.setItem('prefillEmail', email) } catch {}
+        router.push('/signin')
+        router.refresh()
+        return
       }
     } catch {
       toast({

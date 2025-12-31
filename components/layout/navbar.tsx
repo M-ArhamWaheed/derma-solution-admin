@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/sheet"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { createClient } from "@/lib/supabase/client"
-import { LogOut, User, Menu } from "lucide-react"
+import { LogOut, User, Menu, LayoutDashboard, ShoppingBag } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import type { Profile } from "@/types"
@@ -46,12 +46,21 @@ export function Navbar({ user, action }: NavbarProps) {
 
   const handleSignOut = async () => {
     const supabase = createClient()
-    await supabase.auth.signOut()
-    toast({
-      title: "Signed out",
-      description: "You have been signed out successfully",
-    })
-    router.push("/dashboard")
+    // Clear the client session first
+    try { await supabase.auth.signOut() } catch {}
+
+    // Also call the server-side signout endpoint so server cookies
+    // (including ds_role) are cleared immediately and server components
+    // will observe the signed-out state on refresh.
+    try {
+      await fetch('/api/auth/signout', { method: 'POST', credentials: 'same-origin' })
+    } catch (e) {
+      // non-blocking
+    }
+
+    toast({ title: "Signed out", description: "You have been signed out successfully" })
+    // navigate and revalidate server components
+    router.push('/dashboard')
     router.refresh()
   }
 
@@ -132,18 +141,7 @@ export function Navbar({ user, action }: NavbarProps) {
             </div>
           </div>
 
-          {/* Center Section - Desktop Navigation Links */}
-          <div className="hidden lg:flex items-center gap-6">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
+          {/* Center Section removed — links moved to user dropdown */}
 
           {/* Right Section - User Menu, Book Consultation & Theme */}
           <div className="flex items-center gap-2 md:gap-3">
@@ -176,6 +174,14 @@ export function Navbar({ user, action }: NavbarProps) {
                       </p>
                     </div>
                   </DropdownMenuLabel>
+                  <DropdownMenuItem onClick={() => router.push('/dashboard')}>
+                    <LayoutDashboard className="mr-2 h-4 w-4" />
+                    <span>Dashboard</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push('/book-consultation')}>
+                    <ShoppingBag className="mr-2 h-4 w-4" />
+                    <span>My Bookings</span>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => router.push('/profile-settings')}>
                     <User className="mr-2 h-4 w-4" />
@@ -190,12 +196,21 @@ export function Navbar({ user, action }: NavbarProps) {
               </DropdownMenu>
             )}
 
-            {/* Book Consultation Button - Desktop only */}
-            <Link href="/book-consultation" className="hidden lg:block">
-              <Button variant="primary" size="default">
-                Book Consultation
-              </Button>
-            </Link>
+            {/* Desktop-only actions: show Sign In + Book Consultation when not logged in */}
+            {!user && (
+              <div className="hidden lg:flex items-center gap-2">
+                <Link href="/signin" className="text-black">
+                  <Button variant="primary" size="default" >
+                    Sign In
+                  </Button>
+                </Link>
+                <Link href="/book-consultation">
+                  <Button variant="primary" size="default">
+                    Book Consultation
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>

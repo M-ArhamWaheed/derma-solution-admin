@@ -55,7 +55,7 @@ export default async function BookConsultationPage() {
       <main className="container mx-auto py-8">
         
         {/* Account Greeting Section */}
-        <section className="max-w-3xl mx-auto mb-10">
+        <section className="max-w-3xl mx-auto mb-10 ">
           <div className="mb-2">
           <Link href="/dashboard">
             <Button variant="ghost">← Back to Dashboard</Button>
@@ -65,7 +65,7 @@ export default async function BookConsultationPage() {
           <div className="flex items-center justify-between"> 
             <h1 className="text-4xl font-bold tracking-tight">My Account</h1>
             {!authUser && (
-              <p >To see your bookings <Link href="/signin"><Button>Sign In</Button></Link></p>
+              <p >To see your bookings SignIn</p>
             )}
           </div>
           
