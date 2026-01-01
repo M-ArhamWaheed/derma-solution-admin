@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Poppins, Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import NavbarWrapper from "@/components/layout/navbar-wrapper";
 
@@ -45,7 +46,9 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <NavbarWrapper />
+            <React.Suspense fallback={null}>
+              <NavbarWrapper />
+            </React.Suspense>
             {children}
             <Toaster />
           </ThemeProvider>

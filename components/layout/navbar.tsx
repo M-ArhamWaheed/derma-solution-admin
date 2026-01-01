@@ -20,12 +20,12 @@ import {
 import { ThemeToggle } from "@/components/theme-toggle"
 import { createClient } from "@/lib/supabase/client"
 import { LogOut, User, Menu, LayoutDashboard, ShoppingBag } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import type { Profile } from "@/types"
 import Image from "next/image"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 interface NavbarProps {
   user: Profile | null
@@ -42,7 +42,16 @@ const navLinks = [
 export function Navbar({ user, action }: NavbarProps) {
   const router = useRouter()
   const { toast } = useToast()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  // localUser mirrors the `user` prop so we can immediately hide user UI
+  // on sign-out before the server component revalidates.
+  const [localUser, setLocalUser] = useState<Profile | null>(user)
+
+  useEffect(() => {
+    setLocalUser(user)
+  }, [user])
 
   const handleSignOut = async () => {
     const supabase = createClient()
@@ -57,10 +66,16 @@ export function Navbar({ user, action }: NavbarProps) {
     } catch (e) {
       // non-blocking
     }
+    // Immediately update local UI
+    setLocalUser(null)
 
     toast({ title: "Signed out", description: "You have been signed out successfully" })
-    // navigate and revalidate server components
-    router.push('/dashboard')
+    // navigate and revalidate server components so parent server props update
+    try {
+      // replace current route to ensure server components re-run and then refresh
+      const currentPath = (pathname ?? '/') + (searchParams?.toString() ? `?${searchParams.toString()}` : '')
+      await router.replace(currentPath)
+    } catch {}
     router.refresh()
   }
 
@@ -148,65 +163,65 @@ export function Navbar({ user, action }: NavbarProps) {
             <ThemeToggle />
              
 
-            {user && (
-              <DropdownMenu>
+            {localUser && (
+              <DropdownMenu >
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="relative h-10 gap-2 px-2"
+                    className="relative h-10 gap-2 px-2 "
                   >
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user.avatar_url} alt={user.first_name} />
+                      <AvatarImage src={localUser?.avatar_url} alt={localUser?.first_name} />
                       <AvatarFallback>
-                        {getInitials(user.first_name, user.last_name)}
+                        {getInitials(localUser?.first_name, localUser?.last_name)}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuContent align="end" className="w-56 bg-slate-100 px-2">
                   <DropdownMenuLabel>
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium leading-none">
-                        {user.first_name} {user.last_name}
+                        {localUser?.first_name} {localUser?.last_name}
                       </p>
                       <p className="text-xs leading-none text-muted-foreground">
-                        {user.email}
+                        {localUser?.email}
                       </p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuItem onClick={() => router.push('/dashboard')}>
                     <LayoutDashboard className="mr-2 h-4 w-4" />
-                    <span>Dashboard</span>
+                    <span className="cursor-pointer">Dashboard</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => router.push('/book-consultation')}>
                     <ShoppingBag className="mr-2 h-4 w-4" />
-                    <span>My Bookings</span>
+                    <span className="cursor-pointer">My Bookings</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => router.push('/profile-settings')}>
                     <User className="mr-2 h-4 w-4" />
-                    <span>Profile</span>
+                    <span className="cursor-pointer">Profile</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
+                    <span className="cursor-pointer">Log out</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
 
             {/* Desktop-only actions: show Sign In + Book Consultation when not logged in */}
-            {!user && (
+            {!localUser && (
               <div className="hidden lg:flex items-center gap-2">
                 <Link href="/signin" className="text-black">
                   <Button variant="primary" size="default" >
                     Sign In
                   </Button>
                 </Link>
-                <Link href="/book-consultation">
+                <Link href="/signup" className="text-black">
                   <Button variant="primary" size="default">
-                    Book Consultation
+                   Sign Up
                   </Button>
                 </Link>
               </div>

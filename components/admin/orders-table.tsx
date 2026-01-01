@@ -163,7 +163,7 @@ function OrdersTableComponent({ currentPage, totalCount, pageSize }: OrdersTable
       </Table>
       <Sheet open={!!selectedOrder} onOpenChange={(open) => { if (!open) setSelectedOrder(null) }}>
         {selectedOrder && (
-          <SheetContent side="right">
+          <SheetContent side="right" className="bg-slate-100">
             <SheetHeader>
               <SheetTitle>Edit booking</SheetTitle>
               <SheetDescription>Modify date and time for this booking.</SheetDescription>
