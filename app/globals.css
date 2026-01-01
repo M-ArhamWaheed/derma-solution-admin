@@ -141,6 +141,20 @@ body {
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
+  /* Make page sections slightly more prominent and add a soft shadow.
+     These defaults are subtle; pages/components that need different
+     styling can override with utility classes. Avoid changing padding
+     so existing layouts remain stable. */
+  section {
+    /* Slightly darker background for better separation from page background */
+    background: var(--color-muted);
+    color: var(--color-card-foreground);
+    /* a touch deeper shadow for perceived depth */
+    box-shadow: 0 8px 24px rgba(16, 24, 40, 0.08);
+    border-radius: var(--radius);
+    /* preserve stacking context for shadows */
+    position: relative;
+  }
 }
 
 @media (min-width: 640px) {

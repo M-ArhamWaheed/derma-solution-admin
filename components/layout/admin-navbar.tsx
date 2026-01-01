@@ -16,7 +16,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { createClient } from "@/lib/supabase/client"
+import supabase from "@/lib/supabase/client"
 import { LogOut, User, Settings, Menu, LayoutDashboard, Package, FolderTree, ShoppingCart, MessageSquare } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
@@ -35,7 +35,6 @@ export function AdminNavbar({ user }: AdminNavbarProps) {
   const [open, setOpen] = useState(false)
 
   const handleSignOut = async () => {
-    const supabase = createClient()
     try { await supabase.auth.signOut() } catch {}
     try {
       await fetch('/api/auth/signout', { method: 'POST', credentials: 'same-origin' })

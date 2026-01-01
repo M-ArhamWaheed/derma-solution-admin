@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import supabase from "@/lib/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { clearUsersClientCache } from "@/components/admin/users-client";
 
 export default function ProfileSettingsPage() {
-  const supabase = createClient()
+  // use imported singleton client
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
   const [user, setUser] = useState<any | null>(null)

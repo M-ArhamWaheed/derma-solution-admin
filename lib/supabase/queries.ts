@@ -34,7 +34,8 @@ export async function getCategories() {
   
   const { data, error } = await supabase
     .from('categories')
-    .select('*')
+    // Select only the fields we need to reduce bandwidth and parsing cost.
+    .select('id, name, slug, image_url, display_order, is_active')
     .eq('is_active', true)
     .order('display_order', { ascending: true })
   
@@ -74,7 +75,8 @@ export async function getCategoryById(id: string) {
   
   const { data, error } = await supabase
     .from('categories')
-    .select('*')
+    // Explicit columns avoid SELECT * which can pull unnecessary data.
+    .select('id, name, slug, description, image_url, display_order, is_active, created_at, updated_at')
     .eq('id', id)
     .single()
   

@@ -4,6 +4,7 @@ import { useState, useTransition, useEffect } from "react"
 import Image from "next/image"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import supabase from "@/lib/supabase/client"
 import { toast } from "@/hooks/use-toast"
 import type { Service, Category } from "@/types/database"
 
@@ -105,12 +106,13 @@ export function ServiceForm({ onServiceSaved, initialValues, categories, onCance
     if (imageFile) {
       setUploading(true)
       try {
-        const supabase = (await import("@/lib/supabase/client")).createClient()
+        // use imported singleton client for uploads
+        const supabaseClient = supabase
         const fileExt = imageFile.name.split('.').pop()
         const fileName = `${safeSlug}-${Date.now()}.${fileExt}`
-        const { error } = await supabase.storage.from('service-images').upload(fileName, imageFile)
+        const { error } = await supabaseClient.storage.from('service-images').upload(fileName, imageFile)
         if (error) throw error
-        const { data: urlData } = supabase.storage.from('service-images').getPublicUrl(fileName)
+        const { data: urlData } = supabaseClient.storage.from('service-images').getPublicUrl(fileName)
         finalThumbnail = urlData.publicUrl
         setThumbnail(finalThumbnail)
       } catch (err) {

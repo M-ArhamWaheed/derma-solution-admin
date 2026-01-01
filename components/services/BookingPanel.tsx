@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react"
 import { useToast } from "@/hooks/use-toast"
 import ServiceDateSelector from "@/components/services/ServiceDateSelector"
 import { Button } from "@/components/ui/button"
-import { createClient } from "@/lib/supabase/client"
+import supabase from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import type { Service, Order, Json } from "@/types"
 
@@ -111,7 +111,6 @@ export default function BookingPanel({ service, rescheduleOrder }: { service: Se
       time: selectedTime,
     }
 
-    const supabase = createClient()
     const { data: userData } = await supabase.auth.getUser()
     if (!userData?.user) {
       // Persist pending booking so the auth flow can resume to confirmation

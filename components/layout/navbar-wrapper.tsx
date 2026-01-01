@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation"
 import { Navbar } from "./navbar"
-import { createClient } from "@/lib/supabase/client"
+import supabase from "@/lib/supabase/client"
 import { useEffect, useState } from "react"
 import type { Profile } from "@/types"
 
@@ -13,7 +13,6 @@ export default function NavbarWrapper() {
   useEffect(() => {
     if (pathname.startsWith("/admin")) return
     let mounted = true
-    const supabase = createClient()
 
     async function loadProfile() {
       try {

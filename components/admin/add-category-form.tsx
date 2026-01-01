@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { createClient } from "@/lib/supabase/client"
+import supabase from "@/lib/supabase/client"
 import { toast } from "@/hooks/use-toast"
 import type { Category } from "@/types/database"
 // import { createCategory } from "@/lib/supabase/create-category"
@@ -91,7 +91,6 @@ export function AddCategoryForm({ onCategoryAdded, initialValues, onCancel }: { 
     if (imageFile) {
       setUploading(true)
       try {
-        const supabase = createClient()
         const fileExt = imageFile.name.split('.').pop()
         const fileName = `${slug}-${Date.now()}.${fileExt}`
         const { error } = await supabase.storage.from('category-images').upload(fileName, imageFile)

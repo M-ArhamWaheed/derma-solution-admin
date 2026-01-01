@@ -18,7 +18,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { createClient } from "@/lib/supabase/client"
+import supabase from "@/lib/supabase/client"
 import { LogOut, User, Menu, LayoutDashboard, ShoppingBag } from "lucide-react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
@@ -54,7 +54,6 @@ export function Navbar({ user, action }: NavbarProps) {
   }, [user])
 
   const handleSignOut = async () => {
-    const supabase = createClient()
     // Clear the client session first
     try { await supabase.auth.signOut() } catch {}
 

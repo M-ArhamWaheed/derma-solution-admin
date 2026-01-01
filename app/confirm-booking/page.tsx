@@ -1,6 +1,6 @@
 "use client"
 import React, { useEffect, useState } from "react"
-import { createClient } from "@/lib/supabase/client"
+import supabase from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 import { parseBookingDateTime } from '@/lib/utils'
 import { Button } from "@/components/ui/button"
@@ -23,7 +23,6 @@ export default function ConfirmBookingPage() {
     const raw = localStorage.getItem('pendingBooking')
     if (raw) setBooking(JSON.parse(raw))
 
-    const supabase = createClient()
     supabase.auth.getUser().then(async (res) => {
       if (res.data?.user) {
         setUser(res.data.user)
@@ -45,7 +44,6 @@ export default function ConfirmBookingPage() {
     if (!booking?.service_id) return
     ;(async () => {
       try {
-        const supabase = createClient()
         const { data } = await supabase.from('services').select('*').eq('id', booking.service_id).single()
         if (data) setServiceDetails(data)
       } catch (e) {

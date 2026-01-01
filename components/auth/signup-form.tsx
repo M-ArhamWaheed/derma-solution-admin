@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
+import supabase from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -69,7 +69,7 @@ export function SignUpForm() {
     setLoading(true)
 
     try {
-      const supabase = createClient()
+      // use imported singleton client
 
       // If the user is currently in a booking flow, ensure the
       // confirmation email (if used) redirects back to the confirm page.
