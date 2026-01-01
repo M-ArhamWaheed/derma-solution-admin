@@ -151,8 +151,9 @@ function OrdersTableComponent({ currentPage, totalCount, pageSize }: OrdersTable
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                    <DropdownMenuItem onSelect={() => setSelectedOrder(order)}>
-                      Edit
+                    <DropdownMenuItem onSelect={() => setSelectedOrder(order)}
+                      className="cursor-pointer bg-slate-100">
+                     Edit
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

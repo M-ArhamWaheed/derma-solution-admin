@@ -8,7 +8,12 @@ export async function GET() {
   await supabase.auth.signOut()
   
   // Redirect to signin page
-  return NextResponse.redirect(new URL('/signin', process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'))
+  const res = NextResponse.redirect(new URL('/signin', process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'))
+  // clear short-lived role cookie immediately to avoid redirect loops
+  try {
+    res.cookies.set('ds_role', '', { path: '/', maxAge: 0 })
+  } catch (e) {}
+  return res
 }
 
 export async function POST() {
@@ -18,6 +23,10 @@ export async function POST() {
   await supabase.auth.signOut()
   
   // Redirect to signin page
-  return NextResponse.redirect(new URL('/signin', process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'))
+  const res = NextResponse.redirect(new URL('/signin', process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'))
+  try {
+    res.cookies.set('ds_role', '', { path: '/', maxAge: 0 })
+  } catch (e) {}
+  return res
 }
 

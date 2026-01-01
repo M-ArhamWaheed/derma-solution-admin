@@ -80,8 +80,8 @@ export async function middleware(request: NextRequest) {
       // Admin route protection: if role cookie is not admin, redirect to signin
       if (path.startsWith('/admin')) {
         if (userRole !== 'admin') {
-          const signoutUrl = new URL('/auth/signout', request.url)
-          signoutUrl.searchParams.set('redirect', '/signin')
+          const signoutUrl = new URL('/api/auth/signout', request.url)
+          signoutUrl.searchParams.set('redirect', '/dashboard')
           return NextResponse.redirect(signoutUrl)
         }
       }

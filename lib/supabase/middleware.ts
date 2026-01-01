@@ -146,13 +146,13 @@ export async function updateSession(request: NextRequest) {
   }
 
   // Protect admin routes
-  if (path.startsWith('/admin')) {
+    if (path.startsWith('/admin')) {
     if (!user) {
       return NextResponse.redirect(new URL('/signin', request.url))
     }
     if (userRole !== 'admin') {
       // Sign out the user and redirect to signin for a fresh login
-      const signoutUrl = new URL('/auth/signout', request.url)
+      const signoutUrl = new URL('/api/auth/signout', request.url)
       signoutUrl.searchParams.set('redirect', '/signin')
       return NextResponse.redirect(signoutUrl)
     }
